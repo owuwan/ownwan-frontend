@@ -57,7 +57,7 @@ export default function KakaoCallback() {
 
       if (response.ok && data.success) {
         // JWT 토큰 저장
-        localStorage.setItem('token', data.token);
+        localStorage.setItem('access_token', data.token);
         console.log('💾 토큰 저장 완료');
         console.log('📂 저장된 토큰:', localStorage.getItem('token'));
         

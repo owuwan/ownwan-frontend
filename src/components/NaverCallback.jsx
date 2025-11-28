@@ -57,8 +57,12 @@ export default function NaverCallback() {
       }
 
       // JWT 토큰 저장
-      
-      setStatus('로그인 성공!<br />이동 중...');
+if (data.token) {
+  localStorage.setItem('access_token', data.token);
+  console.log('✅ 토큰 localStorage에 저장 완료');
+}
+
+setStatus('로그인 성공!<br />이동 중...');
 
       // 🔥 일단 무조건 메인페이지로 이동
       setTimeout(() => {
