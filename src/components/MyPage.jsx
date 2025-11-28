@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function MyPage() {
   const navigate = useNavigate();
-  
+
   // 입력 상태
   const [birthYear, setBirthYear] = useState('');
   const [birthMonth, setBirthMonth] = useState('');
@@ -13,15 +13,15 @@ export default function MyPage() {
   const [phone1, setPhone1] = useState('010');
   const [phone2, setPhone2] = useState('');
   const [phone3, setPhone3] = useState('');
-  
+
   // 에러 상태
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // 편집 모드 상태
   const [isEditing, setIsEditing] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
-  
+
   // 🔥 성공 모달 상태
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -30,9 +30,9 @@ export default function MyPage() {
     const fetchUserInfo = async () => {
       try {
         // 🔥 동적 백엔드 URL!
-        const backendUrl = window.location.hostname === 'localhost' 
-        ? 'https://ownwan-backend.onrender.com' 
-        : `https://ownwan-backend.onrender.com`;
+        const backendUrl = window.location.hostname === 'localhost'
+          ? 'https://ownwan-backend.onrender.com'
+          : `https://ownwan-backend.onrender.com`;
 
         const token = localStorage.getItem('access_token');
         const response = await fetch(`${backendUrl}/api/profile`, {
@@ -44,14 +44,14 @@ export default function MyPage() {
 
         if (response.ok) {
           const data = await response.json();
-          
+
           if (data.birth) {
             setBirthYear(data.birth.year.toString());
             setBirthMonth(data.birth.month.toString());
             setBirthDay(data.birth.day.toString());
             setBirthHour(data.birth.hour.toString());
             setGender(data.gender || '');
-            
+
             if (data.phone) {
               const phoneParts = data.phone.split('-');
               if (phoneParts.length === 3) {
@@ -60,7 +60,7 @@ export default function MyPage() {
                 setPhone3(phoneParts[2]);
               }
             }
-            
+
             setIsEditing(false);
             setIsSaved(true);
           }
@@ -74,40 +74,40 @@ export default function MyPage() {
   }, []);
 
   // 🚪 로그아웃 핸들러
-const handleLogout = async () => {
-  try {
-    // 🔥 동적 백엔드 URL!
-    const backendUrl = window.location.hostname === 'localhost' 
-      ? 'https://ownwan-backend.onrender.com' 
-      : `https://ownwan-backend.onrender.com`;
-    
-    // 🔥 백엔드 로그아웃 API 호출!
-    const token = localStorage.getItem('access_token');
-    const response = await fetch(`${backendUrl}/api/logout`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Authorization': `Bearer ${token}`
+  const handleLogout = async () => {
+    try {
+      // 🔥 동적 백엔드 URL!
+      const backendUrl = window.location.hostname === 'localhost'
+        ? 'https://ownwan-backend.onrender.com'
+        : `https://ownwan-backend.onrender.com`;
+
+      // 🔥 백엔드 로그아웃 API 호출!
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${backendUrl}/api/logout`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        console.log('✅ 로그아웃 성공!');
+        localStorage.removeItem('access_token');  // localStorage도 정리
+        navigate('/login');
+      } else {
+        console.error('❌ 로그아웃 실패');
+        // 실패해도 일단 로그인 페이지로
+        localStorage.removeItem('token');
+        navigate('/login');
       }
-    });
-    
-    if (response.ok) {
-      console.log('✅ 로그아웃 성공!');
-      localStorage.removeItem('access_token');  // localStorage도 정리
-      navigate('/login');
-    } else {
-      console.error('❌ 로그아웃 실패');
-      // 실패해도 일단 로그인 페이지로
+    } catch (error) {
+      console.error('❌ 로그아웃 에러:', error);
+      // 에러 나도 일단 로그인 페이지로
       localStorage.removeItem('token');
       navigate('/login');
     }
-  } catch (error) {
-    console.error('❌ 로그아웃 에러:', error);
-    // 에러 나도 일단 로그인 페이지로
-    localStorage.removeItem('token');
-    navigate('/login');
-  }
-};
+  };
 
   // 🔥 수정하기 버튼 핸들러 (수정!)
   const handleEdit = (e) => {
@@ -120,18 +120,18 @@ const handleLogout = async () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     // 유효성 검사
     if (!birthYear || !birthMonth || !birthDay) {
       setError('생년월일을 모두 입력해주세요.');
       return;
     }
-    
+
     if (!birthHour) {
       setError('출생 시간대를 선택해주세요.');
       return;
     }
-    
+
     if (!gender) {
       setError('성별을 선택해주세요.');
       return;
@@ -169,8 +169,8 @@ const handleLogout = async () => {
 
       const phoneNumber = `${phone1}-${phone2}-${phone3}`;
 
-      const backendUrl = window.location.hostname === 'localhost' 
-        ? 'https://ownwan-backend.onrender.com' 
+      const backendUrl = window.location.hostname === 'localhost'
+        ? 'https://ownwan-backend.onrender.com'
         : `https://ownwan-backend.onrender.com`;
 
       const token = localStorage.getItem('access_token');
@@ -199,7 +199,7 @@ const handleLogout = async () => {
       }
 
       console.log('✅ 생년월일 정보 저장 성공!');
-      
+
       // 🔥 저장 성공 시
       setIsEditing(false);
       setIsSaved(true);
@@ -214,26 +214,26 @@ const handleLogout = async () => {
   };
 
   return (
-    <div 
-      className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#f5f7fa] via-[#e8eaf0] to-[#f0f2f8] pb-20" 
+    <div
+      className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#f5f7fa] via-[#e8eaf0] to-[#f0f2f8] pb-20"
       style={{ fontFamily: 'Nanum Gothic, sans-serif' }}
     >
       {/* 🔥 성공 모달 */}
       {showSuccessModal && (
-        <div 
+        <div
           className="fixed inset-0 z-[100] flex items-center justify-center p-4"
           onClick={() => setShowSuccessModal(false)}
         >
           {/* 배경 오버레이 */}
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-          
+
           {/* 모달 박스 */}
-          <div 
+          <div
             className="relative bg-gradient-to-br from-[#f5f7fa] via-[#e8eaf0] to-[#f0f2f8] rounded-2xl border-4 border-gray-900 shadow-2xl max-w-sm w-full p-8"
             onClick={(e) => e.stopPropagation()}
           >
             {/* 육각형 패턴 배경 */}
-            <div 
+            <div
               className="absolute inset-0 opacity-[0.03] rounded-2xl"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E")`,
@@ -270,7 +270,7 @@ const handleLogout = async () => {
       )}
 
       {/* 육각형 패턴 배경 */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E")`,
@@ -296,7 +296,7 @@ const handleLogout = async () => {
 
         {/* 입력 폼 */}
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-5 shadow-xl border-2 border-gray-900 mb-4">
-          
+
           {/* 생년월일 */}
           <div className="mb-5">
             <label className="block text-gray-900 text-sm font-bold mb-2 flex items-center gap-1">
@@ -309,9 +309,8 @@ const handleLogout = async () => {
                   value={birthYear}
                   onChange={(e) => setBirthYear(e.target.value)}
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${
-                    !isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
-                  }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
+                    }`}
                 >
                   <option value="">년</option>
                   {Array.from({ length: 125 }, (_, i) => 2024 - i).map(year => (
@@ -324,9 +323,8 @@ const handleLogout = async () => {
                   value={birthMonth}
                   onChange={(e) => setBirthMonth(e.target.value)}
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${
-                    !isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
-                  }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
+                    }`}
                 >
                   <option value="">월</option>
                   {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
@@ -339,9 +337,8 @@ const handleLogout = async () => {
                   value={birthDay}
                   onChange={(e) => setBirthDay(e.target.value)}
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${
-                    !isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
-                  }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
+                    }`}
                 >
                   <option value="">일</option>
                   {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
@@ -364,9 +361,8 @@ const handleLogout = async () => {
                   value={birthHour}
                   onChange={(e) => setBirthHour(e.target.value)}
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${
-                    !isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
-                  }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
+                    }`}
                 >
                   <option value="">시간대를 선택하세요</option>
                   <option value="0">자시 子時 (23-01시)</option>
@@ -397,13 +393,12 @@ const handleLogout = async () => {
                 type="button"
                 onClick={() => isEditing && setGender('남자')}
                 disabled={!isEditing}
-                className={`py-2 px-4 rounded-lg border font-bold text-sm transition-all ${
-                  gender === '남자'
-                    ? 'bg-gray-900 text-white border-gray-900 shadow-md'
-                    : !isEditing
+                className={`py-2 px-4 rounded-lg border font-bold text-sm transition-all ${gender === '남자'
+                  ? 'bg-gray-900 text-white border-gray-900 shadow-md'
+                  : !isEditing
                     ? 'bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed'
                     : 'bg-gray-50 text-gray-900 border-gray-300 hover:border-gray-900'
-                }`}
+                  }`}
               >
                 남자
               </button>
@@ -411,13 +406,12 @@ const handleLogout = async () => {
                 type="button"
                 onClick={() => isEditing && setGender('여자')}
                 disabled={!isEditing}
-                className={`py-2 px-4 rounded-lg border font-bold text-sm transition-all ${
-                  gender === '여자'
-                    ? 'bg-gray-900 text-white border-gray-900 shadow-md'
-                    : !isEditing
+                className={`py-2 px-4 rounded-lg border font-bold text-sm transition-all ${gender === '여자'
+                  ? 'bg-gray-900 text-white border-gray-900 shadow-md'
+                  : !isEditing
                     ? 'bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed'
                     : 'bg-gray-50 text-gray-900 border-gray-300 hover:border-gray-900'
-                }`}
+                  }`}
               >
                 여자
               </button>
@@ -438,9 +432,8 @@ const handleLogout = async () => {
                   onChange={(e) => setPhone1(e.target.value)}
                   placeholder="010"
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${
-                    !isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
-                  }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
+                    }`}
                   maxLength="3"
                 />
               </div>
@@ -451,9 +444,8 @@ const handleLogout = async () => {
                   onChange={(e) => setPhone2(e.target.value)}
                   placeholder="1234"
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${
-                    !isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
-                  }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
+                    }`}
                   maxLength="4"
                 />
               </div>
@@ -464,9 +456,8 @@ const handleLogout = async () => {
                   onChange={(e) => setPhone3(e.target.value)}
                   placeholder="5678"
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${
-                    !isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
-                  }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
+                    }`}
                   maxLength="4"
                 />
               </div>
@@ -485,11 +476,10 @@ const handleLogout = async () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-full py-2.5 rounded-lg font-bold text-sm text-white transition-all ${
-                isSubmitting
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-gray-800 shadow-md hover:shadow-lg'
-              }`}
+              className={`w-full py-2.5 rounded-lg font-bold text-sm text-white transition-all ${isSubmitting
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-gray-800 shadow-md hover:shadow-lg'
+                }`}
             >
               {isSubmitting ? '저장 중...' : '정보 저장하기'}
             </button>
@@ -510,6 +500,44 @@ const handleLogout = async () => {
             </p>
           </div>
         </form>
+
+        {/* 고객센터 섹션 */}
+        <div className="mt-6 bg-white rounded-xl p-5 shadow-md border border-gray-200">
+          <h3 className="text-gray-900 font-bold text-sm mb-4 flex items-center gap-2">
+            <span className="text-lg">📞</span>
+            고객센터
+          </h3>
+          <div className="space-y-3">
+            <a href="mailto:support@ownwan.com" className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all">
+              <div className="flex items-center gap-3">
+                <span className="text-lg">✉️</span>
+                <span className="text-gray-800 font-medium text-sm">문의하기</span>
+              </div>
+              <span className="text-gray-400">→</span>
+            </a>
+            <a href="/refund" className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all">
+              <div className="flex items-center gap-3">
+                <span className="text-lg">📋</span>
+                <span className="text-gray-800 font-medium text-sm">환불정책</span>
+              </div>
+              <span className="text-gray-400">→</span>
+            </a>
+            <a href="/terms" className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all">
+              <div className="flex items-center gap-3">
+                <span className="text-lg">📄</span>
+                <span className="text-gray-800 font-medium text-sm">이용약관</span>
+              </div>
+              <span className="text-gray-400">→</span>
+            </a>
+            <a href="/privacy" className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all">
+              <div className="flex items-center gap-3">
+                <span className="text-lg">🔒</span>
+                <span className="text-gray-800 font-medium text-sm">개인정보처리방침</span>
+              </div>
+              <span className="text-gray-400">→</span>
+            </a>
+          </div>
+        </div>
 
         {/* 로그아웃 버튼 */}
         <button
