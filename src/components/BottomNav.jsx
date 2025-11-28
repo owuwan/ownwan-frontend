@@ -7,23 +7,34 @@ export default function BottomNav() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  // 🔥 로그인 상태 체크 - API로 확인!
+  // 🔥 로그인 상태 체크 - localStorage 토큰으로 확인!
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        // 🔥 동적 백엔드 URL!
-        const backendUrl = window.location.hostname === 'localhost' 
-          ? 'https://ownwan-backend.onrender.com' 
-          : `https://ownwan-backend.onrender.com`;
+        const token = localStorage.getItem('access_token');
+        
+        // 토큰이 없으면 비로그인
+        if (!token) {
+          setIsLoggedIn(false);
+          return;
+        }
+        
+        // 토큰이 있으면 API로 유효성 확인
+        const backendUrl = 'https://ownwan-backend.onrender.com';
         
         const response = await fetch(`${backendUrl}/api/profile`, {
-          credentials: 'include'  // 🔥 쿠키 포함!
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
         
         if (response.ok) {
-          setIsLoggedIn(true);  // 로그인 상태
+          setIsLoggedIn(true);
         } else {
-          setIsLoggedIn(false);  // 비로그인 상태
+          // 토큰이 유효하지 않으면 삭제
+          localStorage.removeItem('access_token');
+          setIsLoggedIn(false);
         }
       } catch (error) {
         console.error('❌ 로그인 상태 체크 실패:', error);
@@ -32,7 +43,7 @@ export default function BottomNav() {
     };
 
     checkLoginStatus();
-  }, [location]); // 페이지 이동 시마다 체크
+  }, [location]);
 
   // 🔥 로그인 체크 함수 - API로 확인!
   const handleNavigation = async (path, requiresLogin = false) => {
@@ -43,8 +54,12 @@ export default function BottomNav() {
           ? 'https://ownwan-backend.onrender.com' 
           : `https://ownwan-backend.onrender.com`;
         
+        const token = localStorage.getItem('access_token');
         const response = await fetch(`${backendUrl}/api/profile`, {
-          credentials: 'include'
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
         
         if (!response.ok) {
