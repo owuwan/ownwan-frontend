@@ -138,8 +138,19 @@ export default function MainPage() {
          : `https://ownwan-backend.onrender.com`;
         
         // API 호출 (쿠키 체크 없이 바로 시도)
+        const token = localStorage.getItem('access_token');
+        
+        // 토큰 없으면 비로그인
+        if (!token) {
+          console.log('❌ 토큰 없음 - 알림 안 띄움');
+          return;
+        }
+        
         const response = await fetch(`${backendUrl}/api/profile`, {
-          credentials: 'include'
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
         
         console.log('🔍 [Step 2] API 응답:', response.status);
