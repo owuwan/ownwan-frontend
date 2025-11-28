@@ -7,11 +7,10 @@ export default function AlldayResultPage() {
   const navigate = useNavigate();
   const [showKakaoPreview, setShowKakaoPreview] = useState(false);
 
-  // ⭐ 추가: 로그인 체크 함수
+  // ⭐ 추가: 로그인 체크 함수 (localStorage 사용)
   const checkLogin = () => {
-    const cookies = document.cookie.split(';');
-    const hasToken = cookies.some(cookie => cookie.trim().startsWith('access_token='));
-    return hasToken;
+    const token = localStorage.getItem('access_token');
+    return !!token;
   };
 
   // 유료 상품 클릭 핸들러 (⭐ 로그인 체크 추가)

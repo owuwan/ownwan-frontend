@@ -34,9 +34,13 @@ export default function MyPage() {
         ? 'https://ownwan-backend.onrender.com' 
         : `https://ownwan-backend.onrender.com`;
 
+        const token = localStorage.getItem('access_token');
         const response = await fetch(`${backendUrl}/api/profile`, {
-    credentials: 'include'  // 쿠키 포함!
-});
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
 
         if (response.ok) {
           const data = await response.json();
@@ -78,14 +82,18 @@ const handleLogout = async () => {
       : `https://ownwan-backend.onrender.com`;
     
     // 🔥 백엔드 로그아웃 API 호출!
+    const token = localStorage.getItem('access_token');
     const response = await fetch(`${backendUrl}/api/logout`, {
       method: 'POST',
-      credentials: 'include'  // 쿠키 포함
+      credentials: 'include',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
     });
     
     if (response.ok) {
       console.log('✅ 로그아웃 성공!');
-      localStorage.removeItem('token');  // localStorage도 정리
+      localStorage.removeItem('access_token');  // localStorage도 정리
       navigate('/login');
     } else {
       console.error('❌ 로그아웃 실패');
@@ -165,10 +173,12 @@ const handleLogout = async () => {
         ? 'https://ownwan-backend.onrender.com' 
         : `https://ownwan-backend.onrender.com`;
 
+      const token = localStorage.getItem('access_token');
       const response = await fetch(`${backendUrl}/api/profile/update-birth-info`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         credentials: 'include',
         body: JSON.stringify({
