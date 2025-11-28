@@ -1,0 +1,239 @@
+.result-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0015 0%, #1a0033 50%, #2d0a4e 100%);
+  padding: 40px 20px;
+}
+
+.result-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(138, 43, 226, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.result-title {
+  text-align: center;
+  color: #ffd700;
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.user-info {
+  text-align: center;
+  color: #fff;
+  margin-bottom: 40px;
+  font-size: 1.2rem;
+}
+
+.birth-info {
+  color: #b8b8ff;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+/* 사주팔자 */
+.saju-section {
+  margin-bottom: 40px;
+}
+
+.saju-section h2 {
+  color: #ffd700;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+}
+
+.saju-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.saju-pillar {
+  background: rgba(138, 43, 226, 0.2);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+}
+
+.pillar-label {
+  display: block;
+  color: #b8b8ff;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.pillar-value {
+  display: block;
+  color: #ffd700;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+/* 운세 섹션 */
+.fortune-section {
+  margin-bottom: 40px;
+}
+
+.fortune-section h2 {
+  color: #ffd700;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+}
+
+.fortune-item {
+  background: rgba(138, 43, 226, 0.15);
+  border-left: 4px solid #ffd700;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.fortune-item h3 {
+  color: #ffd700;
+  margin-bottom: 10px;
+  font-size: 1.3rem;
+}
+
+.fortune-item p {
+  color: #fff;
+  line-height: 1.6;
+  font-size: 1.1rem;
+}
+
+/* 행운 섹션 */
+.lucky-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.lucky-item {
+  background: rgba(138, 43, 226, 0.15);
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+}
+
+.lucky-item h3 {
+  color: #ffd700;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+}
+
+.lucky-numbers {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.lucky-number {
+  background: linear-gradient(135deg, #8a2be2, #9d4edd);
+  color: #fff;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(138, 43, 226, 0.5);
+}
+
+.lucky-colors {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.lucky-color {
+  background: rgba(255, 215, 0, 0.2);
+  color: #ffd700;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: 2px solid #ffd700;
+  font-weight: bold;
+}
+
+/* 주의사항 */
+.warning-section {
+  background: rgba(255, 69, 0, 0.1);
+  border: 2px solid rgba(255, 69, 0, 0.5);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 40px;
+}
+
+.warning-section h3 {
+  color: #ff6b6b;
+  margin-bottom: 10px;
+  font-size: 1.3rem;
+}
+
+.warning-section p {
+  color: #fff;
+  line-height: 1.6;
+  font-size: 1.1rem;
+}
+
+/* 버튼들 */
+.action-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.action-buttons button {
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-subscribe {
+  background: linear-gradient(135deg, #8a2be2, #9d4edd);
+  color: white;
+}
+
+.btn-subscribe:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(138, 43, 226, 0.6);
+}
+
+.btn-lifetime {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #000;
+}
+
+.btn-lifetime:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .saju-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .lucky-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+}
