@@ -33,8 +33,8 @@ export default function KakaoCallback() {
 
       // 백엔드 URL 자동 감지
       const backendUrl = window.location.hostname === 'localhost'
-        ? 'http://localhost:5000'
-        : 'http://10.226.90.18:5000';
+        ? 'https://ownwan-backend.onrender.com'
+        : 'https://ownwan-backend.onrender.com';
 
       console.log('🌐 백엔드 URL:', backendUrl);
       

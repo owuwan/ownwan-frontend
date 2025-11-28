@@ -80,8 +80,8 @@ export default function SignupPage() {
       }
 
       const backendUrl = window.location.hostname === 'localhost' 
-        ? 'http://localhost:5000' 
-        : `http://${window.location.hostname}:5000`;
+        ? 'https://ownwan-backend.onrender.com' 
+        : `https://ownwan-backend.onrender.com`;
 
       const response = await fetch(`${backendUrl}/api/profile/update-birth-info`, {
         method: 'POST',

@@ -13,8 +13,8 @@ export default function BottomNav() {
       try {
         // 🔥 동적 백엔드 URL!
         const backendUrl = window.location.hostname === 'localhost' 
-          ? 'http://localhost:5000' 
-          : `http://${window.location.hostname}:5000`;
+          ? 'https://ownwan-backend.onrender.com' 
+          : `https://ownwan-backend.onrender.com`;
         
         const response = await fetch(`${backendUrl}/api/profile`, {
           credentials: 'include'  // 🔥 쿠키 포함!
@@ -40,8 +40,8 @@ export default function BottomNav() {
       try {
         // 🔥 동적 백엔드 URL!
         const backendUrl = window.location.hostname === 'localhost' 
-          ? 'http://localhost:5000' 
-          : `http://${window.location.hostname}:5000`;
+          ? 'https://ownwan-backend.onrender.com' 
+          : `https://ownwan-backend.onrender.com`;
         
         const response = await fetch(`${backendUrl}/api/profile`, {
           credentials: 'include'

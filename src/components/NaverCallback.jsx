@@ -32,8 +32,8 @@ export default function NaverCallback() {
       setStatus('네이버 로그인<br />처리 중...');
 
       const backendUrl = window.location.hostname === 'localhost' 
-        ? 'http://localhost:5000' 
-        : `http://${window.location.hostname}:5000`;
+        ? 'https://ownwan-backend.onrender.com' 
+        : `https://ownwan-backend.onrender.com`;
       
       console.log('🔍 백엔드 URL:', backendUrl);
       console.log('🔍 보낼 데이터:', { code, state });

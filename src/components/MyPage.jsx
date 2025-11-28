@@ -31,8 +31,8 @@ export default function MyPage() {
       try {
         // 🔥 동적 백엔드 URL!
         const backendUrl = window.location.hostname === 'localhost' 
-        ? 'http://localhost:5000' 
-        : `http://${window.location.hostname}:5000`;
+        ? 'https://ownwan-backend.onrender.com' 
+        : `https://ownwan-backend.onrender.com`;
 
         const response = await fetch(`${backendUrl}/api/profile`, {
     credentials: 'include'  // 쿠키 포함!
@@ -74,8 +74,8 @@ const handleLogout = async () => {
   try {
     // 🔥 동적 백엔드 URL!
     const backendUrl = window.location.hostname === 'localhost' 
-      ? 'http://localhost:5000' 
-      : `http://${window.location.hostname}:5000`;
+      ? 'https://ownwan-backend.onrender.com' 
+      : `https://ownwan-backend.onrender.com`;
     
     // 🔥 백엔드 로그아웃 API 호출!
     const response = await fetch(`${backendUrl}/api/logout`, {
@@ -162,8 +162,8 @@ const handleLogout = async () => {
       const phoneNumber = `${phone1}-${phone2}-${phone3}`;
 
       const backendUrl = window.location.hostname === 'localhost' 
-        ? 'http://localhost:5000' 
-        : `http://${window.location.hostname}:5000`;
+        ? 'https://ownwan-backend.onrender.com' 
+        : `https://ownwan-backend.onrender.com`;
 
       const response = await fetch(`${backendUrl}/api/profile/update-birth-info`, {
         method: 'POST',

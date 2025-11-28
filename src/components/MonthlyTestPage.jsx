@@ -25,7 +25,7 @@ export default function MonthlyTestPage() {
     try {
       console.log('📤 월간 운세 요청 시작...');
       
-      const response = await fetch('http://localhost:5000/api/monthly-saju', {
+      const response = await fetch('https://ownwan-backend.onrender.com/api/monthly-saju', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

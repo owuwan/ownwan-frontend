@@ -134,8 +134,8 @@ export default function MainPage() {
 
         // 🔥 동적 백엔드 URL!
         const backendUrl = window.location.hostname === 'localhost' 
-         ? 'http://localhost:5000' 
-         : `http://${window.location.hostname}:5000`;
+         ? 'https://ownwan-backend.onrender.com' 
+         : `https://ownwan-backend.onrender.com`;
         
         // API 호출 (쿠키 체크 없이 바로 시도)
         const response = await fetch(`${backendUrl}/api/profile`, {
@@ -196,7 +196,7 @@ console.log('🔍 [Step 3-2] data.birth?.year:', data.birth?.year);
     e.preventDefault();
     
     try {
-      const sajuBackendUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : `http://${window.location.hostname}:5000`;
+      const sajuBackendUrl = window.location.hostname === 'localhost' ? 'https://ownwan-backend.onrender.com' : `https://ownwan-backend.onrender.com`;
 const response = await fetch(`${sajuBackendUrl}/api/saju`, {
         method: 'POST',
         headers: {
@@ -248,8 +248,8 @@ const response = await fetch(`${sajuBackendUrl}/api/saju`, {
     try {
   // 🔥 동적 백엔드 URL
   const backendUrl = window.location.hostname === 'localhost' 
-    ? 'http://localhost:5000' 
-    : `http://${window.location.hostname}:5000`;
+    ? 'https://ownwan-backend.onrender.com' 
+    : `https://ownwan-backend.onrender.com`;
   
   const response = await fetch(`${backendUrl}/api/saju`, {
     method: 'POST',
@@ -301,8 +301,8 @@ const response = await fetch(`${sajuBackendUrl}/api/saju`, {
     try {
   // 🔥 동적 백엔드 URL
   const backendUrl = window.location.hostname === 'localhost' 
-    ? 'http://localhost:5000' 
-    : `http://${window.location.hostname}:5000`;
+    ? 'https://ownwan-backend.onrender.com' 
+    : `https://ownwan-backend.onrender.com`;
   
   const response = await fetch(`${backendUrl}/api/saju`, {
     method: 'POST',
