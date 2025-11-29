@@ -24,6 +24,8 @@ export default function MyPage() {
 
   // 🔥 성공 모달 상태
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  // 🔥 고객센터 모달 상태
+  const [activeModal, setActiveModal] = useState(null);
 
   // 페이지 로드 시 기존 정보 불러오기
   useEffect(() => {
@@ -508,34 +510,34 @@ export default function MyPage() {
             고객센터
           </h3>
           <div className="space-y-3">
-            <a href="mailto:support@ownwan.com" className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all">
+            <button onClick={() => setActiveModal('contact')} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all text-left">
               <div className="flex items-center gap-3">
                 <span className="text-lg">✉️</span>
                 <span className="text-gray-800 font-medium text-sm">문의하기</span>
               </div>
               <span className="text-gray-400">→</span>
-            </a>
-            <a href="/refund" className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all">
+            </button>
+            <button onClick={() => setActiveModal('refund')} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all text-left">
               <div className="flex items-center gap-3">
                 <span className="text-lg">📋</span>
                 <span className="text-gray-800 font-medium text-sm">환불정책</span>
               </div>
               <span className="text-gray-400">→</span>
-            </a>
-            <a href="/terms" className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all">
+            </button>
+            <button onClick={() => setActiveModal('terms')} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all text-left">
               <div className="flex items-center gap-3">
                 <span className="text-lg">📄</span>
                 <span className="text-gray-800 font-medium text-sm">이용약관</span>
               </div>
               <span className="text-gray-400">→</span>
-            </a>
-            <a href="/privacy" className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all">
+            </button>
+            <button onClick={() => setActiveModal('privacy')} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all text-left">
               <div className="flex items-center gap-3">
                 <span className="text-lg">🔒</span>
                 <span className="text-gray-800 font-medium text-sm">개인정보처리방침</span>
               </div>
               <span className="text-gray-400">→</span>
-            </a>
+            </button>
           </div>
         </div>
 
@@ -548,5 +550,177 @@ export default function MyPage() {
         </button>
       </div>
     </div>
+     {/* 고객센터 모달들 */}
+      {activeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setActiveModal(null)}>
+          <div onClick={e => e.stopPropagation()} className="bg-white rounded-2xl w-full max-w-md shadow-xl flex flex-col" style={{ maxHeight: '85vh' }}>
+            
+            {/* 문의하기 모달 */}
+            {activeModal === 'contact' && (
+              <>
+                <div className="flex-shrink-0 border-b border-gray-200 p-4 flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">✉️ 문의하기</h2>
+                  <button onClick={() => setActiveModal(null)} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full text-2xl">&times;</button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-5">
+                  <div className="space-y-4">
+                    <p className="text-gray-700 text-sm">문의사항이 있으시면 아래 이메일로 연락해 주세요.</p>
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <p className="text-gray-500 text-xs mb-1">이메일</p>
+                      <p className="text-gray-900 font-medium">chol5622729@naver.com</p>
+                    </div>
+                    <a href="mailto:chol5622729@naver.com?subject=[오운완 문의]" className="block w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-lg text-center hover:from-purple-700 hover:to-indigo-700 transition-all">
+                      이메일 보내기
+                    </a>
+                    <p className="text-xs text-gray-500 text-center">답변은 영업일 기준 1~2일 이내에 드립니다.</p>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* 환불정책 모달 */}
+            {activeModal === 'refund' && (
+              <>
+                <div className="flex-shrink-0 border-b border-gray-200 p-4 flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">📋 환불정책</h2>
+                  <button onClick={() => setActiveModal(null)} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full text-2xl">&times;</button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-5 space-y-4 text-gray-700 text-sm leading-relaxed">
+                  <section>
+                    <h3 className="font-bold text-gray-900 mb-2">제1조 (환불 원칙)</h3>
+                    <p>오운완 서비스는 「전자상거래 등에서의 소비자보호에 관한 법률」에 따라 환불 정책을 운영합니다.</p>
+                  </section>
+                  <section>
+                    <h3 className="font-bold text-gray-900 mb-2">제2조 (환불 가능 기간)</h3>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li><strong>월간 구독권:</strong> 결제일로부터 7일 이내, 서비스 미이용 시 전액 환불</li>
+                      <li><strong>단건 상품:</strong> 결제일로부터 7일 이내, 콘텐츠 미열람 시 전액 환불</li>
+                      <li><strong>평생 이용권:</strong> 결제일로부터 7일 이내, 서비스 미이용 시 전액 환불</li>
+                    </ul>
+                  </section>
+                  <section>
+                    <h3 className="font-bold text-gray-900 mb-2">제3조 (환불 불가 사유)</h3>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>콘텐츠를 이미 열람한 경우</li>
+                      <li>구독 기간 중 일부를 사용한 경우</li>
+                      <li>결제일로부터 7일이 경과한 경우</li>
+                    </ul>
+                  </section>
+                  <section>
+                    <h3 className="font-bold text-gray-900 mb-2">제4조 (환불 신청 방법)</h3>
+                    <p>고객센터 문의하기를 통해 회원 이메일, 결제일자, 환불 사유를 알려주세요.</p>
+                  </section>
+                  <section>
+                    <h3 className="font-bold text-gray-900 mb-2">제5조 (환불 처리 기간)</h3>
+                    <p>영업일 기준 3~7일 이내에 처리됩니다.</p>
+                  </section>
+                  <div className="pt-4 border-t border-gray-200 text-xs text-gray-500">
+                    <p>시행일: 2025년 1월 1일</p>
+                    <p>문의: chol5622729@naver.com</p>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* 이용약관 모달 */}
+            {activeModal === 'terms' && (
+              <>
+                <div className="flex-shrink-0 border-b border-gray-200 p-4 flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">📄 이용약관</h2>
+                  <button onClick={() => setActiveModal(null)} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full text-2xl">&times;</button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-5 space-y-4 text-gray-700 text-sm leading-relaxed">
+                  <section>
+                    <h3 className="font-bold text-gray-900 mb-2">제1조 (목적)</h3>
+                    <p>본 약관은 오운완(이하 "서비스")이 제공하는 운세 정보 서비스의 이용 조건을 규정합니다.</p>
+                  </section>
+                  <section>
+                    <h3 className="font-bold text-gray-900 mb-2">제2조 (서비스의 내용)</h3>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>AI 기반 개인 맞춤형 운세 정보 제공</li>
+                      <li>일간/월간 운세 리포트 서비스</li>
+                      <li>사주 분석 및 해석 서비스</li>
+                    </ul>
+                  </section>
+                  <section>
+                    <h3 className="font-bold text-gray-900 mb-2">제3조 (회원가입 및 자격)</h3>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>카카오톡 또는 네이버 소셜 로그인으로 가입</li>
+                      <li>만 14세 미만은 서비스 이용 제한</li>
+                      <li>허위 정보 입력 시 이용 제한</li>
+                    </ul>
+                  </section>
+                  <section>
+                    <h3 className="font-bold text-gray-900 mb-2">제4조 (면책조항)</h3>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>본 서비스는 오락 및 참고 목적으로 제공됩니다.</li>
+                      <li>중요한 결정에 대한 전문적 조언을 대체하지 않습니다.</li>
+                    </ul>
+                  </section>
+                  <section>
+                    <h3 className="font-bold text-gray-900 mb-2">제5조 (저작권)</h3>
+                    <p>모든 콘텐츠의 저작권은 오운완에 있으며, 무단 복제를 금합니다.</p>
+                  </section>
+                  <div className="pt-4 border-t border-gray-200 text-xs text-gray-500">
+                    <p>시행일: 2025년 1월 1일</p>
+                    <p>문의: chol5622729@naver.com</p>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* 개인정보처리방침 모달 */}
+            {activeModal === 'privacy' && (
+              <>
+                <div className="flex-shrink-0 border-b border-gray-200 p-4 flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">🔒 개인정보처리방침</h2>
+                  <button onClick={() => setActiveModal(null)} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full text-2xl">&times;</button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-5 space-y-4 text-gray-700 text-sm leading-relaxed">
+                  <section>
+                    <h3 className="font-bold text-gray-900 mb-2">제1조 (수집하는 개인정보)</h3>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li><strong>필수:</strong> 이름(닉네임), 이메일, 생년월일, 성별</li>
+                      <li><strong>자동 수집:</strong> 서비스 이용기록, 접속 로그</li>
+                      <li><strong>결제 시:</strong> 결제 정보 (결제대행사 처리)</li>
+                    </ul>
+                  </section>
+                  <section>
+                    <h3 className="font-bold text-gray-900 mb-2">제2조 (수집 목적)</h3>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>맞춤형 운세 서비스 제공</li>
+                      <li>회원 관리 및 본인 확인</li>
+                      <li>유료 서비스 결제 처리</li>
+                    </ul>
+                  </section>
+                  <section>
+                    <h3 className="font-bold text-gray-900 mb-2">제3조 (보유 기간)</h3>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>회원 탈퇴 시 즉시 파기</li>
+                      <li>전자상거래법에 따른 거래기록: 5년</li>
+                    </ul>
+                  </section>
+                  <section>
+                    <h3 className="font-bold text-gray-900 mb-2">제4조 (제3자 제공)</h3>
+                    <p>원칙적으로 외부에 제공하지 않습니다. 단, 이용자 동의 또는 법령에 의한 경우 예외.</p>
+                  </section>
+                  <section>
+                    <h3 className="font-bold text-gray-900 mb-2">제5조 (이용자의 권리)</h3>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>개인정보 열람, 수정, 삭제 요청</li>
+                      <li>회원 탈퇴 요청</li>
+                    </ul>
+                  </section>
+                  <div className="pt-4 border-t border-gray-200 text-xs text-gray-500">
+                    <p>시행일: 2025년 1월 1일</p>
+                    <p>개인정보 보호책임자: chol5622729@naver.com</p>
+                  </div>
+                </div>
+              </>
+            )}
+
+          </div>
+        </div>
+      )}
   );
 }
