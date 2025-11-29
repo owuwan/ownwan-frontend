@@ -143,6 +143,36 @@ export default function LoginPage() {
               </svg>
               네이버로<br/>1초만에 시작!
             </button>
+            {/* 테스트 로그인 버튼 (토스페이먼츠 심사용) */}
+            <button
+              onClick={async () => {
+                try {
+                  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://ownwan-backend.onrender.com';
+                  const response = await fetch(`${backendUrl}/api/auth/test-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include'
+                  });
+                  const data = await response.json();
+                  if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    window.location.href = '/';
+                  } else {
+                    alert('테스트 로그인 실패: ' + data.message);
+                  }
+                } catch (error) {
+                  alert('테스트 로그인 오류: ' + error.message);
+                }
+              }}
+              className="w-full mt-4 py-3 px-6 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2"
+              style={{
+                backgroundColor: '#EF4444',
+                color: '#FFFFFF'
+              }}
+            >
+              🧪 테스트 계정 로그인
+              <span className="text-xs opacity-80">(토스페이먼츠 심사용)</span>
+            </button>
 
             {/* 안내 문구 */}
             <p className="text-sm text-gray-500 text-center mt-6">

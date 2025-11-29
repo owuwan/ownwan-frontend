@@ -778,6 +778,30 @@ const response = await fetch(`${sajuBackendUrl}/api/saju`, {
               className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-2 rounded-lg font-bold text-xs shadow-lg border-2 border-red-800 hover:from-red-700 hover:to-red-800 transition-all">
               🔧 Test (무제한)
             </button>
+            {/* 🧪 테스트 로그인 버튼 (토스페이먼츠 심사용) */}
+            <button 
+              onClick={async () => {
+                try {
+                  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://ownwan-backend.onrender.com';
+                  const response = await fetch(`${backendUrl}/api/auth/test-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include'
+                  });
+                  const data = await response.json();
+                  if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    window.location.reload();
+                  } else {
+                    alert('테스트 로그인 실패: ' + data.message);
+                  }
+                } catch (error) {
+                  alert('테스트 로그인 오류: ' + error.message);
+                }
+              }}
+              className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-2 rounded-lg font-bold text-xs shadow-lg border-2 border-red-700 hover:from-red-600 hover:to-red-700 transition-all">
+              🧪 테스트 계정 로그인 (토스페이먼츠 심사용)
+            </button>
 
             {/* 가격 안내 박스 */}
             <div className="text-center text-gray-900 text-xs font-medium space-y-0.5 bg-gray-50 rounded-lg p-3 border border-gray-300">
