@@ -71,7 +71,7 @@ export default function AdminLogin() {
             <Lock className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">관리자 로그인</h1>
-          <p className="text-gray-600">EVERY DAY 사주리포트</p>
+          <p className="text-gray-600">오운완</p>
         </div>
 
         {/* 로그인 폼 */}
@@ -151,7 +151,7 @@ export default function AdminLogin() {
         {/* 푸터 */}
         <div className="text-center mt-6">
           <p className="text-gray-600 text-sm">
-            © 2025 EVERY DAY 사주리포트
+            © 2025 오운완ㅣ오늘의 운세 완료!
           </p>
         </div>
       </div>
