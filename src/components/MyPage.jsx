@@ -549,8 +549,8 @@ export default function MyPage() {
           로그아웃
         </button>
       </div>
-    </div>
-     {/* 고객센터 모달들 */}
+
+      {/* 고객센터 모달들 */}
       {activeModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setActiveModal(null)}>
           <div onClick={e => e.stopPropagation()} className="bg-white rounded-2xl w-full max-w-md shadow-xl flex flex-col" style={{ maxHeight: '85vh' }}>
@@ -722,5 +722,6 @@ export default function MyPage() {
           </div>
         </div>
       )}
+    </div>
   );
 }
