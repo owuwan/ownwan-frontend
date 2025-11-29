@@ -155,7 +155,7 @@ export default function LoginPage() {
                   });
                   const data = await response.json();
                   if (data.success) {
-                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('access_token', data.token);
                     window.location.href = '/';
                   } else {
                     alert('테스트 로그인 실패: ' + data.message);
