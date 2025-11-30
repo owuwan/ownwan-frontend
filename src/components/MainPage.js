@@ -208,6 +208,8 @@ console.log('🔍 [Step 3-2] data.birth?.year:', data.birth?.year);
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    setIsLoading(true);
+    
     try {
       const sajuBackendUrl = window.location.hostname === 'localhost' ? 'https://ownwan-backend.onrender.com' : `https://ownwan-backend.onrender.com`;
 const response = await fetch(`${sajuBackendUrl}/api/saju`, {
@@ -221,11 +223,14 @@ const response = await fetch(`${sajuBackendUrl}/api/saju`, {
       const data = await response.json();
       
       if (response.ok) {
+        setIsLoading(false);
         navigate('/result', { state: { sajuData: data } });
       } else {
+        setIsLoading(false);
         alert('오류가 발생했습니다: ' + data.error);
       }
     } catch (error) {
+      setIsLoading(false);
       alert('서버 연결에 실패했습니다.');
       console.error('Error:', error);
     }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import LoadingScreen from './LoadingScreen';
 
 export default function MonthlyTestPage() {
   const navigate = useNavigate();
@@ -52,6 +53,11 @@ export default function MonthlyTestPage() {
       setLoading(false);
     }
   };
+
+  // 로딩 화면
+  if (loading) {
+    return <LoadingScreen type="monthly" />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 p-4">
