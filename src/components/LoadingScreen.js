@@ -89,9 +89,9 @@ export default function LoadingScreen({ type = 'daily' }) {
 
             {/* 중앙 이모지 */}
             <div className="relative mb-8 flex items-center justify-center" style={{ height: '130px' }}>
-              <div className="relative">
+              <div className="relative" style={{ width: '100px', height: '100px' }}>
                 {/* 궤도 원 - 뒤에 배치 */}
-                <div className="absolute top-1/2 left-1/2" style={{ transform: 'translate(-50%, -50%)' }}>
+                <div className="absolute inset-0 flex items-center justify-center">
                   <div className="border-2 border-dashed rounded-full" style={{
                     width: '100px',
                     height: '100px',
@@ -100,10 +100,12 @@ export default function LoadingScreen({ type = 'daily' }) {
                   }}></div>
                 </div>
                 {/* 중앙 이모지 원 */}
-                <div className="bg-gradient-to-br from-yellow-500 to-orange-500 w-20 h-20 rounded-full flex items-center justify-center shadow-xl relative z-10" style={{
-                  animation: 'pulse 2s ease-in-out infinite'
-                }}>
-                  <div className="text-4xl">{emojis[currentEmoji]}</div>
+                <div className="absolute inset-0 flex items-center justify-center z-10">
+                  <div className="bg-gradient-to-br from-yellow-500 to-orange-500 w-16 h-16 rounded-full flex items-center justify-center shadow-xl" style={{
+                    animation: 'pulse 2s ease-in-out infinite'
+                  }}>
+                    <div className="text-3xl">{emojis[currentEmoji]}</div>
+                  </div>
                 </div>
               </div>
             </div>
