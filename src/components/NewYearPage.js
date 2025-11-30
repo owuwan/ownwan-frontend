@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, Star, Check, ChevronRight, CreditCard, Smartphone, Wallet, Zap } from 'lucide-react';
 import Footer from './Footer';
+import LoadingScreen from './LoadingScreen';
 
 export default function NewYearPage() {
   const navigate = useNavigate();
   const [selectedMethod, setSelectedMethod] = useState('card');
   const [agreed, setAgreed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handlePayment = async () => {
     if (!agreed) {
@@ -54,6 +56,7 @@ export default function NewYearPage() {
         isLunar: birth.is_lunar || false
       };
       
+      setIsLoading(true);
       // 신년운세 API 호출
       const fortuneRes = await fetch(`${backendUrl}/api/newyear-fortune`, {
         method: 'POST',
@@ -76,6 +79,7 @@ export default function NewYearPage() {
     } catch (error) {
       console.error('Error:', error);
       alert('오류가 발생했습니다: ' + error.message);
+      setIsLoading(false);
     }
   };
 
@@ -91,6 +95,10 @@ export default function NewYearPage() {
   const currentYear = new Date().getFullYear();
   const targetYear = currentYear + (new Date().getMonth() >= 10 ? 1 : 0); // 11월부터는 다음해
 
+  // 로딩 중이면 로딩 화면 표시
+  if (isLoading) {
+    return <LoadingScreen type="newyear" />;
+  }
   return (
     <div className="min-h-screen relative overflow-hidden" style={{
       background: 'linear-gradient(135deg, #FEF2F2 0%, #FFF7ED 50%, #FFFBEB 100%)'
