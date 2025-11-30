@@ -1,341 +1,347 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Home as HomeIcon } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Sparkles, Star, Check, ChevronRight, CreditCard, Smartphone, Wallet, Zap } from 'lucide-react';
+import Footer from './Footer';
+import LoadingScreen from './LoadingScreen';
 
-export default function NewYearResultPage() {
-  const location = useLocation();
+export default function NewYearPage() {
   const navigate = useNavigate();
-  const [resultData, setResultData] = useState(null);
-  const [parsedFortune, setParsedFortune] = useState(null);
+  const [selectedMethod, setSelectedMethod] = useState('card');
+  const [agreed, setAgreed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const data = location.state?.resultData;
-    
-    if (!data) {
-      alert('신년운세 데이터가 없습니다.');
-      navigate('/');
+  const handlePayment = async () => {
+    if (!agreed) {
+      alert('서비스 이용약관에 동의해주세요!');
       return;
     }
-
-    setResultData(data);
     
-    // GPT 운세 파싱
-    if (data.gpt_fortune?.success) {
-      const parsed = parseNewYearFortune(data.gpt_fortune.fortune);
-      setParsedFortune(parsed);
+    // 로그인 체크
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
     }
-  }, [location, navigate]);
-
-  // 신년운세 파싱 함수
-  const parseNewYearFortune = (fortuneText) => {
-    if (!fortuneText) return null;
-
-    const sections = {
-      totalFortune: "",
-      monthlyFortune: "",
-      love: "",
-      money: "",
-      career: "",
-      health: "",
-      luckyDirection: "",
-      luckyNumbers: "",
-      luckyColors: "",
-      bestMonths: "",
-      cautionMonths: "",
-      yearlyAdvice: ""
-    };
-
-    const lines = fortuneText.split('\n');
-    let currentSection = '';
-
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed) continue;
-
-      if (trimmed.match(/^1\.|2025년 총운:/i)) {
-        currentSection = 'totalFortune';
-        sections.totalFortune += trimmed.replace(/^1\.|2025년 총운:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^2\.|월별 운세/i)) {
-        currentSection = 'monthlyFortune';
-        sections.monthlyFortune += trimmed.replace(/^2\.|월별 운세.*:/i, '').trim() + '\n';
-      } else if (trimmed.match(/^3\.|애정운:/i)) {
-        currentSection = 'love';
-        sections.love += trimmed.replace(/^3\.|애정운:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^4\.|재물운:/i)) {
-        currentSection = 'money';
-        sections.money += trimmed.replace(/^4\.|재물운:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^5\.|직장.*사업운:/i)) {
-        currentSection = 'career';
-        sections.career += trimmed.replace(/^5\.|직장.*사업운:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^6\.|건강운:/i)) {
-        currentSection = 'health';
-        sections.health += trimmed.replace(/^6\.|건강운:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^7\.|행운의 방향:/i)) {
-        currentSection = 'luckyDirection';
-        sections.luckyDirection += trimmed.replace(/^7\.|행운의 방향:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^8\.|행운의 숫자:/i)) {
-        currentSection = 'luckyNumbers';
-        sections.luckyNumbers += trimmed.replace(/^8\.|행운의 숫자:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^9\.|행운의 컬러:/i)) {
-        currentSection = 'luckyColors';
-        sections.luckyColors += trimmed.replace(/^9\.|행운의 컬러:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^10\.|대길월:/i)) {
-        currentSection = 'bestMonths';
-        sections.bestMonths += trimmed.replace(/^10\.|.*대길월.*:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^11\.|주의월:/i)) {
-        currentSection = 'cautionMonths';
-        sections.cautionMonths += trimmed.replace(/^11\.|.*주의월.*:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^12\.|종합 조언:/i)) {
-        currentSection = 'yearlyAdvice';
-        sections.yearlyAdvice += trimmed.replace(/^12\.|.*종합 조언.*:/i, '').trim() + ' ';
-      } else if (currentSection === 'monthlyFortune' && trimmed.match(/^\d{1,2}월:/)) {
-        sections.monthlyFortune += trimmed + '\n';
-      } else if (currentSection) {
-        sections[currentSection] += trimmed + ' ';
+    
+    // 사용자 생년월일 정보 가져오기
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://ownwan-backend.onrender.com';
+      
+      const profileRes = await fetch(`${backendUrl}/api/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      const profileData = await profileRes.json();
+      
+      if (!profileData.success || !profileData.birth) {
+        alert('생년월일 정보가 필요합니다. 마이페이지에서 입력해주세요.');
+        navigate('/mypage');
+        return;
       }
+      
+      // TODO: 실제 결제 연동 (토스페이먼츠)
+      // 지금은 테스트용으로 바로 API 호출
+      
+      const birth = profileData.birth;
+      const requestData = {
+        name: profileData.name || '사용자',
+        birthYear: birth.year,
+        birthMonth: birth.month,
+        birthDay: birth.day,
+        birthHour: birth.hour || 12,
+        gender: profileData.gender || '남자',
+        isLunar: birth.is_lunar || false
+      };
+      
+      setIsLoading(true);
+      // 신년운세 API 호출
+      const fortuneRes = await fetch(`${backendUrl}/api/newyear-fortune`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(requestData)
+      });
+      
+      const fortuneData = await fortuneRes.json();
+      
+      if (fortuneData.success) {
+        // 결과 페이지로 이동
+        navigate('/newyear-result', { state: { resultData: fortuneData } });
+      } else {
+        alert('운세 생성에 실패했습니다: ' + (fortuneData.error || '알 수 없는 오류'));
+      }
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert('오류가 발생했습니다: ' + error.message);
+      setIsLoading(false);
     }
-
-    return sections;
   };
 
-  if (!resultData || !parsedFortune) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #e8eaf0 50%, #f0f2f8 100%)'
-      }}>
-        <div className="text-gray-600 text-lg">로딩 중...</div>
-      </div>
-    );
-  }
+  const paymentMethods = [
+    { id: 'card', icon: CreditCard, label: '신용/체크카드', description: '모든 카드사 가능' },
+    { id: 'kakao', icon: Smartphone, label: '카카오페이', description: '간편 결제' },
+    { id: 'naver', icon: Wallet, label: '네이버페이', description: '간편 결제' },
+    { id: 'toss', icon: Zap, label: '토스페이', description: '간편 결제' },
+    { id: 'phone', icon: Smartphone, label: '휴대폰 소액결제', description: '통신사 결제' }
+  ];
 
+  // 현재 연도 + 1 (신년운세니까)
+  const currentYear = new Date().getFullYear();
+  const targetYear = currentYear + (new Date().getMonth() >= 10 ? 1 : 0); // 11월부터는 다음해
+
+  // 로딩 중이면 로딩 화면 표시
+  if (isLoading) {
+    return <LoadingScreen type="newyear" />;
+  }
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ 
-      fontFamily: "'Nanum Gothic', 'Malgun Gothic', sans-serif",
-      background: 'linear-gradient(135deg, #f5f7fa 0%, #e8eaf0 50%, #f0f2f8 100%)'
+    <div className="min-h-screen relative overflow-hidden" style={{
+      background: 'linear-gradient(135deg, #FEF2F2 0%, #FFF7ED 50%, #FFFBEB 100%)'
     }}>
       {/* 육각형 패턴 배경 */}
-      <div className="absolute inset-0 opacity-[0.21]" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='173.2' viewBox='0 0 200 173.2' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-width='2'%3E%3Cpath d='M 50 0 L 100 0 L 125 43.3 L 100 86.6 L 50 86.6 L 25 43.3 Z' opacity='0.4'/%3E%3Cpath d='M 150 0 L 200 0 L 225 43.3 L 200 86.6 L 150 86.6 L 125 43.3 Z' opacity='0.3'/%3E%3Cpath d='M 0 86.6 L 50 86.6 L 75 130 L 50 173.2 L 0 173.2 L -25 130 Z' opacity='0.35'/%3E%3Cpath d='M 100 86.6 L 150 86.6 L 175 130 L 150 173.2 L 100 173.2 L 75 130 Z' opacity='0.4'/%3E%3C/g%3E%3C/svg%3E")`,
-        backgroundSize: '200px 173.2px'
-      }}></div>
+      <svg width="100" height="87" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full opacity-10">
+        <defs>
+          <pattern id="hexagons-newyear" width="100" height="87" patternUnits="userSpaceOnUse">
+            <path d="M50 0 L93.3 25 L93.3 62 L50 87 L6.7 62 L6.7 25 Z" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#hexagons-newyear)" className="text-red-900"/>
+      </svg>
 
-      {/* 부드러운 빛 효과 */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-200 rounded-full filter blur-3xl opacity-20"></div>
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-200 rounded-full filter blur-3xl opacity-20"></div>
-      <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-indigo-200 rounded-full filter blur-3xl opacity-15"></div>
+      <div className="relative z-10 container mx-auto px-4 py-6 max-w-md">
+        {/* ===== 신년운세 헤더 ===== */}
+        <div className="bg-gradient-to-br from-red-50 via-white to-orange-50 rounded-2xl p-5 shadow-xl border-2 border-red-600 mb-6 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-5">
+            <svg width="100%" height="100%">
+              <defs>
+                <pattern id="hex-newyear" width="30" height="26" patternUnits="userSpaceOnUse">
+                  <polygon points="15,0 30,7.5 30,22.5 15,30 0,22.5 0,7.5" fill="none" stroke="#DC2626" strokeWidth="1"/>
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#hex-newyear)"/>
+            </svg>
+          </div>
+          
+          <div className="relative z-10 text-center">
+            {/* 신년운세 로고 */}
+            <div className="flex items-center justify-center mb-4">
+              <div className="relative" style={{animation: 'wiggle 2s ease-in-out infinite'}}>
+                <div className="absolute -inset-2 bg-red-200 rounded-2xl" style={{animation: 'pulseRing 2s ease-in-out infinite'}}></div>
+                <div className="relative bg-gradient-to-br from-red-500 to-red-600 rounded-2xl px-5 py-2 shadow-lg" style={{border: '3px solid #991B1B'}}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🎊</span>
+                    <div className="text-white text-xl tracking-tight" style={{fontWeight: 900}}>{targetYear} 신년운세</div>
+                    <span className="text-base" style={{animation: 'sparkle 1.5s ease-in-out infinite'}}>✨</span>
+                  </div>
+                </div>
+                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0" style={{borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '10px solid #991B1B'}}></div>
+              </div>
+            </div>
+            
+            {/* 배지 + 타이틀 */}
+            <div style={{animation: 'float 3s ease-in-out infinite'}}>
+              <span className="inline-block bg-gradient-to-r from-red-400 to-orange-400 text-white text-sm font-bold px-4 py-1.5 rounded-full mb-2 shadow-md">
+                🐍 {targetYear}년 을사년 대운 분석
+              </span>
+            </div>
+            <h1 className="text-2xl font-black text-gray-900 mb-1">{targetYear}년 신년운세</h1>
+            <p className="text-gray-600 text-sm">새해 운세로 한 해를 미리 준비하세요</p>
+          </div>
+        </div>
 
+        {/* 상품 정보 카드 */}
+        <div className="bg-white rounded-3xl p-6 border-2 border-red-600 shadow-2xl mb-6 animate-slideUp">
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+              <span className="text-3xl">🎊</span>
+            </div>
+            <h2 className="text-gray-900 text-2xl font-bold mb-2">{targetYear}년 신년운세</h2>
+            <div className="flex items-end justify-center gap-2 mb-3">
+              <span className="text-red-600 text-5xl font-bold">19,900</span>
+              <span className="text-gray-700 text-xl mb-2">원</span>
+            </div>
+            <p className="text-gray-600 text-sm">나의 사주로 보는 {targetYear}년 한 해 운세</p>
+            <div className="mt-3 inline-block bg-red-50 px-4 py-2 rounded-full border-2 border-red-600">
+              <p className="text-red-700 text-xs font-bold">🎁 1회 결제 • 평생 조회 가능</p>
+            </div>
+          </div>
+
+          {/* 혜택 리스트 */}
+          <div className="space-y-3 mb-6">
+            {[
+              { icon: '📜', text: `${targetYear}년 한 해 종합 사주풀이` },
+              { icon: '📅', text: '월별 운세 (1월~12월 상세 분석)' },
+              { icon: '💕', text: '연애운 & 결혼운' },
+              { icon: '💰', text: '재물운 & 사업운' },
+              { icon: '💼', text: '취업운 & 직장운' },
+              { icon: '💪', text: '건강운 & 주의사항' }
+            ].map((item, idx) => (
+              <div key={idx} className="flex items-center gap-3 bg-red-50 rounded-lg p-3 border border-red-200">
+                <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm">{item.icon}</span>
+                </div>
+                <span className="text-gray-900 text-sm font-medium">{item.text}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* 안내 문구 */}
+          <div className="bg-gradient-to-r from-red-100 to-orange-100 rounded-xl p-4 border-2 border-red-300">
+            <p className="text-gray-700 text-xs text-center leading-relaxed">
+              ✨ 결제 후 바로 {targetYear}년 신년운세를 확인하실 수 있습니다<br />
+              📱 마이페이지에서 언제든지 다시 조회 가능합니다
+            </p>
+          </div>
+        </div>
+
+        {/* 결제 수단 선택 카드 */}
+        <div className="bg-white rounded-3xl p-6 border-2 border-red-600 shadow-2xl mb-6 animate-slideUp" style={{ animationDelay: '0.1s' }}>
+          <h3 className="text-gray-900 text-lg font-bold mb-4 flex items-center">
+            <Sparkles className="w-5 h-5 mr-2 text-red-600" />
+            결제 수단 선택
+          </h3>
+
+          <div className="space-y-3">
+            {paymentMethods.map((method) => {
+              const Icon = method.icon;
+              return (
+                <button
+                  key={method.id}
+                  onClick={() => setSelectedMethod(method.id)}
+                  className={`w-full p-4 rounded-xl border-2 transition-all ${
+                    selectedMethod === method.id
+                      ? 'bg-red-50 border-red-600 shadow-lg'
+                      : 'bg-white border-gray-300 hover:border-red-400'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        selectedMethod === method.id ? 'bg-red-600' : 'bg-gray-200'
+                      }`}>
+                        <Icon className={`w-5 h-5 ${
+                          selectedMethod === method.id ? 'text-white' : 'text-gray-700'
+                        }`} />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-gray-900 font-medium">{method.label}</div>
+                        <div className="text-gray-600 text-xs">{method.description}</div>
+                      </div>
+                    </div>
+                    {selectedMethod === method.id && (
+                      <div className="w-6 h-6 rounded-full bg-red-600 flex items-center justify-center">
+                        <Check className="w-4 h-4 text-white" />
+                      </div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 bg-red-50 rounded-lg p-3 border-2 border-red-300">
+            <p className="text-red-700 text-xs text-center">
+              💳 안전한 결제 (PG사: 토스페이먼츠)
+            </p>
+          </div>
+        </div>
+
+        {/* 약관 동의 */}
+        <div className="bg-white rounded-2xl p-5 border-2 border-red-600 shadow-2xl mb-6 animate-slideUp" style={{ animationDelay: '0.2s' }}>
+          <button
+            onClick={() => setAgreed(!agreed)}
+            className="w-full flex items-center gap-3"
+          >
+            <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 ${
+              agreed 
+                ? 'bg-red-600 border-red-600' 
+                : 'bg-white border-gray-400'
+            }`}>
+              {agreed && <Check className="w-4 h-4 text-white" />}
+            </div>
+            <span className="text-gray-900 text-sm font-medium leading-tight text-center flex-1">
+              서비스 이용약관 및 개인정보<br />
+              처리방침에 동의합니다
+            </span>
+          </button>
+        </div>
+
+        {/* 결제 버튼 */}
+        <button
+          onClick={handlePayment}
+          className={`w-full py-6 px-6 rounded-2xl font-bold text-lg shadow-2xl transform transition-all duration-300 flex items-center justify-center border-2 animate-slideUp ${
+            agreed
+              ? 'bg-gradient-to-r from-red-500 via-red-600 to-orange-500 text-white hover:scale-105 border-red-700'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-400'
+          }`}
+          style={{ animationDelay: '0.3s' }}
+          disabled={!agreed}
+        >
+          <span className="text-xl mr-2">🎊</span>
+          <span>{targetYear}년 신년운세 결제하기</span>
+          <ChevronRight className="w-6 h-6 ml-2" />
+        </button>
+
+        {/* 하단 안내 */}
+        <div className="mt-6 text-center">
+          <p className="text-gray-600 text-xs leading-relaxed">
+            ✅ 결제 후 바로 신년운세 확인 가능<br />
+            📱 마이페이지에서 언제든지 다시 조회 가능<br />
+            🎁 1회 결제로 {targetYear}년 내내 조회 가능
+          </p>
+        </div>
+
+        {/* 푸터 */}
+        <div className="mt-8 text-center text-gray-500 text-xs">
+          <p>© 2025 오운완 | 오늘의 운세 완료! All rights reserved.</p>
+        </div>
+      </div>
+
+      {/* 애니메이션 스타일 */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap');
-        
-        * {
-          font-family: 'Nanum Gothic', 'Malgun Gothic', sans-serif !important;
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         
+        .animate-slideUp {
+          animation: slideUp 0.6s ease-out forwards;
+          opacity: 0;
+        }
+
         @keyframes wiggle {
           0%, 100% { transform: rotate(-2deg); }
           50% { transform: rotate(2deg); }
         }
-        
+
         @keyframes pulseRing {
           0% { transform: scale(0.95); opacity: 0.7; }
           50% { transform: scale(1.05); opacity: 0.3; }
           100% { transform: scale(0.95); opacity: 0.7; }
         }
-        
+
         @keyframes sparkle {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.6; transform: scale(1.3); }
         }
 
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.6s ease-out;
-        }
-
-        .animate-slideUp {
-          animation: slideUp 0.6s ease-out;
-          animation-fill-mode: both;
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-5px); }
         }
       `}</style>
-
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
-        
-        {/* 헤더 - 오운완 말풍선 로고 */}
-        <div className="text-center mb-8 animate-fadeIn bg-white rounded-3xl p-6 shadow-2xl border-2 border-gray-900 relative overflow-hidden">
-          
-          {/* 배경 블러 장식 */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-amber-100 to-transparent rounded-bl-full opacity-50"></div>
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-orange-100 to-transparent rounded-tr-full opacity-50"></div>
-          
-          <div className="relative z-10">
-            
-            {/* 오운완 말풍선 로고 */}
-            <div className="flex items-center justify-center mb-4">
-              <div className="relative" style={{animation: 'wiggle 2s ease-in-out infinite'}}>
-                {/* 펄스 링 */}
-                <div className="absolute -inset-2 bg-amber-200 rounded-2xl" style={{animation: 'pulseRing 2s ease-in-out infinite'}}></div>
-                
-                {/* 메인 말풍선 */}
-                <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl px-6 py-3 shadow-lg" style={{border: '3px solid #111827'}}>
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🐍</span>
-                    <div className="text-gray-900 text-2xl tracking-tight" style={{fontWeight: 900}}>
-                      2025 신년운세
-                    </div>
-                    <span className="text-lg" style={{animation: 'sparkle 1.5s ease-in-out infinite'}}>✨</span>
-                  </div>
-                </div>
-                
-                {/* 말풍선 꼬리 */}
-                <div 
-                  className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0"
-                  style={{
-                    borderLeft: '8px solid transparent',
-                    borderRight: '8px solid transparent',
-                    borderTop: '10px solid #111827'
-                  }}
-                ></div>
-              </div>
-            </div>
-            
-            {/* 서브 타이틀 */}
-            <p className="text-gray-500 text-xs mb-4 tracking-wider">을사년 신년운세 리포트</p>
-            
-            {/* 사용자 정보 박스 */}
-            <div className="bg-gray-50 rounded-2xl p-4 mb-3 border border-gray-200">
-              <p className="text-gray-800 text-lg font-bold">{resultData.name}님의 2025년 운세</p>
-              <p className="text-gray-500 text-sm">{resultData.birth_date} | {resultData.gender}</p>
-            </div>
-            
-            {/* 만세력 배지 */}
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 rounded-full border-2 border-green-400">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-              <span className="text-green-700 text-xs font-bold">🤖 실제 만세력을 통한 운세입니다.</span>
-            </div>
-            
-          </div>
-        </div>
-
-        {/* 사주 팔자 카드 */}
-        <div className="bg-white rounded-3xl border-2 border-gray-900 shadow-2xl animate-slideUp overflow-hidden mb-6 p-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span>📜</span> 사주 팔자
-          </h3>
-          <div className="grid grid-cols-4 gap-3">
-            {[
-              { label: '년주', value: resultData.saju?.year },
-              { label: '월주', value: resultData.saju?.month },
-              { label: '일주', value: resultData.saju?.day },
-              { label: '시주', value: resultData.saju?.hour }
-            ].map((item, idx) => (
-              <div key={idx} className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 text-center border border-amber-200">
-                <div className="text-xs text-amber-600 font-medium mb-1">{item.label}</div>
-                <div className="text-xl font-bold text-gray-800">{item.value}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 2025년 총운 */}
-        <div className="bg-white rounded-3xl border-2 border-gray-900 shadow-2xl animate-slideUp overflow-hidden mb-6 p-6" style={{animationDelay: '0.1s'}}>
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span>🎯</span> 2025년 총운
-          </h3>
-          <p className="text-gray-700 leading-relaxed">{parsedFortune.totalFortune}</p>
-        </div>
-
-        {/* 월별 운세 */}
-        <div className="bg-white rounded-3xl border-2 border-gray-900 shadow-2xl animate-slideUp overflow-hidden mb-6 p-6" style={{animationDelay: '0.15s'}}>
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span>📅</span> 월별 운세
-          </h3>
-          <div className="space-y-2">
-            {parsedFortune.monthlyFortune.split('\n').map((line, idx) => (
-              line.trim() && (
-                <div key={idx} className="text-gray-700 text-sm py-1 border-b border-gray-100 last:border-0">
-                  {line}
-                </div>
-              )
-            ))}
-          </div>
-        </div>
-
-        {/* 운세 카드들 */}
-        {[
-          { emoji: '💕', title: '애정운', content: parsedFortune.love },
-          { emoji: '💰', title: '재물운', content: parsedFortune.money },
-          { emoji: '💼', title: '직장/사업운', content: parsedFortune.career },
-          { emoji: '🏥', title: '건강운', content: parsedFortune.health }
-        ].map((item, idx) => (
-          <div key={idx} className="bg-white rounded-3xl border-2 border-gray-900 shadow-2xl animate-slideUp overflow-hidden mb-6 p-6" style={{animationDelay: `${0.2 + idx * 0.05}s`}}>
-            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <span>{item.emoji}</span> {item.title}
-            </h3>
-            <p className="text-gray-700 leading-relaxed">{item.content}</p>
-          </div>
-        ))}
-
-        {/* 행운 정보 3개 */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          {[
-            { emoji: '🧭', label: '행운의 방향', value: parsedFortune.luckyDirection },
-            { emoji: '🔢', label: '행운의 숫자', value: parsedFortune.luckyNumbers },
-            { emoji: '🎨', label: '행운의 컬러', value: parsedFortune.luckyColors }
-          ].map((item, idx) => (
-            <div key={idx} className="bg-white rounded-2xl border-2 border-gray-900 shadow-xl p-4 text-center animate-slideUp" style={{animationDelay: `${0.4 + idx * 0.05}s`}}>
-              <div className="text-2xl mb-2">{item.emoji}</div>
-              <div className="text-xs text-gray-500 mb-1">{item.label}</div>
-              <div className="text-sm font-bold text-gray-800">{item.value}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* 대길월 & 주의월 */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-white rounded-2xl border-2 border-green-500 shadow-xl p-4 animate-slideUp" style={{animationDelay: '0.55s'}}>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-xl">✨</span>
-              <span className="font-bold text-green-600">대길월</span>
-            </div>
-            <p className="text-gray-700 text-sm leading-relaxed">{parsedFortune.bestMonths}</p>
-          </div>
-          <div className="bg-white rounded-2xl border-2 border-red-400 shadow-xl p-4 animate-slideUp" style={{animationDelay: '0.6s'}}>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-xl">⚠️</span>
-              <span className="font-bold text-red-500">주의월</span>
-            </div>
-            <p className="text-gray-700 text-sm leading-relaxed">{parsedFortune.cautionMonths}</p>
-          </div>
-        </div>
-
-        {/* 종합 조언 */}
-        <div className="bg-white rounded-3xl border-2 border-gray-900 shadow-2xl animate-slideUp overflow-hidden mb-6 p-6" style={{animationDelay: '0.65s'}}>
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span>📝</span> 2025년 종합 조언
-          </h3>
-          <p className="text-gray-700 leading-relaxed">{parsedFortune.yearlyAdvice}</p>
-        </div>
-
-        {/* 홈으로 버튼 */}
-        <button
-          onClick={() => navigate('/')}
-          className="w-full max-w-md mx-auto block bg-gradient-to-r from-gray-800 to-gray-900 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-2"
-        >
-          <HomeIcon className="w-5 h-5" />
-          홈으로 돌아가기
-        </button>
-        
-        <div className="h-8"></div>
-      </div>
+      <Footer />
     </div>
   );
 }
