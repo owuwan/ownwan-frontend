@@ -17,6 +17,7 @@ import NaverCallback from './components/NaverCallback';
 import MyPage from './components/MyPage';
 import BottomNav from './components/BottomNav';
 import SignupPage from './components/SignupPage';
+import NewYearPage from './components/NewYearPage';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           <Route path="/auth/naver/callback" element={<NaverCallback />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/newyear" element={<NewYearPage />} />
         </Routes>
         <BottomNav />
       </div>

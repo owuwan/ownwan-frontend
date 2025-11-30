@@ -137,13 +137,25 @@ export default function BottomNav() {
         </div>
       )}
 
-      {/* 하단 네비게이션 */}
+      {/* 🆕 좌측 하단 플로팅 홈버튼 */}
+      <button
+        onClick={() => navigate('/')}
+        className={`fixed left-3 bottom-20 z-[60] w-10 h-10 rounded-full flex items-center justify-center shadow-lg border-2 transition-all ${
+          isActive('/')
+            ? 'bg-gray-900 border-gray-900 text-white'
+            : 'bg-white border-gray-300 text-gray-900 hover:bg-gray-100'
+        }`}
+        style={{ opacity: 0.95 }}
+      >
+        <span className="text-lg">🏠</span>
+      </button>
+
+      {/* 하단 네비게이션 (5개) */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-900 shadow-lg z-50">
         <div className="max-w-4xl mx-auto px-2 py-1.5">
-          {/* 🔥 변경: grid-cols-4 → grid-cols-5 */}
           <div className="grid grid-cols-5 gap-1">
             
-            {/* 🆕 일일사주 버튼 - 로그인 필수! (새로 추가) */}
+            {/* 일일사주 버튼 - 로그인 필수! */}
             <button
               onClick={() => handleNavigation('/payment', true)}
               className={`flex flex-col items-center justify-center py-1.5 px-2 rounded-lg transition-all ${
@@ -169,6 +181,19 @@ export default function BottomNav() {
               <span className="text-[10px] font-bold whitespace-nowrap">월간사주</span>
             </button>
 
+            {/* 🆕 신년운세 버튼 - 로그인 필수! (새로 추가) */}
+            <button
+              onClick={() => handleNavigation('/newyear', true)}
+              className={`flex flex-col items-center justify-center py-1.5 px-2 rounded-lg transition-all ${
+                isActive('/newyear')
+                  ? 'bg-red-600 text-white'
+                  : 'bg-red-500 text-white hover:bg-red-600'
+              }`}
+            >
+              <span className="text-base mb-0.5">🎊</span>
+              <span className="text-[10px] font-bold whitespace-nowrap">신년운세</span>
+            </button>
+
             {/* 평생사주 버튼 - 로그인 필수! */}
             <button
               onClick={() => handleNavigation('/lifetime', true)}
@@ -180,19 +205,6 @@ export default function BottomNav() {
             >
               <span className="text-base mb-0.5">♾️</span>
               <span className="text-[10px] font-bold whitespace-nowrap">평생사주</span>
-            </button>
-
-            {/* 홈 버튼 - 누구나 가능 */}
-            <button
-              onClick={() => handleNavigation('/', false)}
-              className={`flex flex-col items-center justify-center py-1.5 px-2 rounded-lg transition-all ${
-                isActive('/')
-                  ? 'bg-gray-900 text-white'
-                  : 'bg-gray-50 text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              <span className="text-base mb-0.5">🏠</span>
-              <span className="text-[10px] font-bold whitespace-nowrap">홈</span>
             </button>
 
             {/* 🔥 동적 5번째 버튼 - 로그인 여부에 따라 변경 */}
