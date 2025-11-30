@@ -87,26 +87,21 @@ export default function LoadingScreen({ type = 'daily' }) {
               <div className="w-16 h-1 bg-yellow-500 mx-auto"></div>
             </div>
 
-            {/* 중앙 이모지 */}
-            <div className="relative mb-8 flex items-center justify-center" style={{ height: '130px' }}>
-              <div className="relative" style={{ width: '100px', height: '100px' }}>
-                {/* 궤도 원 - 뒤에 배치 */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="border-2 border-dashed rounded-full" style={{
-                    width: '100px',
-                    height: '100px',
-                    borderColor: 'rgba(234, 179, 8, 0.3)',
-                    animation: 'spin 10s linear infinite'
-                  }}></div>
-                </div>
-                {/* 중앙 이모지 원 */}
-                <div className="absolute inset-0 flex items-center justify-center z-10">
-                  <div className="bg-gradient-to-br from-yellow-500 to-orange-500 w-16 h-16 rounded-full flex items-center justify-center shadow-xl" style={{
-                    animation: 'pulse 2s ease-in-out infinite'
-                  }}>
-                    <div className="text-3xl">{emojis[currentEmoji]}</div>
-                  </div>
-                </div>
+            {/* 중앙 이모지 + 궤도 원 */}
+            <div className="relative mb-8 flex items-center justify-center" style={{ height: '120px' }}>
+              {/* 궤도 원 - 제자리 회전 */}
+              <div className="absolute border-2 border-dashed rounded-full" style={{
+                width: '100px',
+                height: '100px',
+                borderColor: 'rgba(234, 179, 8, 0.3)',
+                animation: 'spin 10s linear infinite'
+              }}></div>
+              
+              {/* 중앙 이모지 원 */}
+              <div className="bg-gradient-to-br from-yellow-500 to-orange-500 w-16 h-16 rounded-full flex items-center justify-center shadow-xl z-10" style={{
+                animation: 'pulse 2s ease-in-out infinite'
+              }}>
+                <div className="text-3xl">{emojis[currentEmoji]}</div>
               </div>
             </div>
 
@@ -148,8 +143,8 @@ export default function LoadingScreen({ type = 'daily' }) {
           50% { transform: scale(1.05); }
         }
         @keyframes spin {
-          from { transform: translate(-50%, -50%) rotate(0deg); }
-          to { transform: translate(-50%, -50%) rotate(360deg); }
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
       `}</style>
     </div>
