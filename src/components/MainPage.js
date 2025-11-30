@@ -25,6 +25,8 @@ export default function MainPage() {
 
   // 🆕 Phase 1F: 생년월일 입력 알림 모달
   const [showBirthInfoModal, setShowBirthInfoModal] = useState(false);
+  // 테스트 로그인 로딩 state
+  const [isTestLoginLoading, setIsTestLoginLoading] = useState(false);
 
   // 로딩 애니메이션용 state
   const [currentFortuneIndex, setCurrentFortuneIndex] = useState(0);
@@ -782,6 +784,7 @@ const response = await fetch(`${sajuBackendUrl}/api/saju`, {
             <button 
               onClick={async () => {
                 try {
+                  setIsTestLoginLoading(true);
                   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://ownwan-backend.onrender.com';
                   const response = await fetch(`${backendUrl}/api/auth/test-login`, {
                     method: 'POST',
@@ -793,14 +796,17 @@ const response = await fetch(`${sajuBackendUrl}/api/saju`, {
                     localStorage.setItem('access_token', data.token);
                     window.location.reload();
                   } else {
+                    setIsTestLoginLoading(false);
                     alert('테스트 로그인 실패: ' + data.message);
                   }
                 } catch (error) {
+                  setIsTestLoginLoading(false);
                   alert('테스트 로그인 오류: ' + error.message);
                 }
               }}
-              className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-2 rounded-lg font-bold text-xs shadow-lg border-2 border-red-700 hover:from-red-600 hover:to-red-700 transition-all">
-              🧪 테스트 계정 로그인 (토스페이먼츠 심사용)
+              disabled={isTestLoginLoading}
+              className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-2 rounded-lg font-bold text-xs shadow-lg border-2 border-red-700 hover:from-red-600 hover:to-red-700 transition-all disabled:opacity-50">
+              {isTestLoginLoading ? '🔄 로그인 중...' : '🧪 테스트 계정 로그인 (토스페이먼츠 심사용)'}
             </button>
 
             {/* 가격 안내 박스 */}
