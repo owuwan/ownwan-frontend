@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Star, Heart, Briefcase, DollarSign, Activity, MapPin, Hash, Palette, Calendar } from 'lucide-react';
+import KakaoPreviewModal from './KakaoPreviewModal';
 
 export default function NewYearResultPage() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export default function NewYearResultPage() {
   const [showModal, setShowModal] = useState(false);
   const [openItems, setOpenItems] = useState({});
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showKakaoPreview, setShowKakaoPreview] = useState(false);
 
   // 로그인 체크
   const checkLogin = () => {
@@ -438,7 +440,7 @@ export default function NewYearResultPage() {
               오늘의 운세가 카카오톡으로 도착해요
             </p>
             <button
-              onClick={() => alert('알림톡 미리보기 - 추후 연동 예정')}
+              onClick={() => setShowKakaoPreview(true)}
               className="bg-gradient-to-r from-amber-400 to-orange-400 text-gray-900 font-bold py-3 px-6 rounded-xl hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg cursor-pointer"
             >
               📱 알림톡 미리보기
@@ -628,6 +630,11 @@ export default function NewYearResultPage() {
           </div>
         </div>
       )}
+      {/* 알림톡 미리보기 모달 */}
+      <KakaoPreviewModal 
+        isOpen={showKakaoPreview} 
+        onClose={() => setShowKakaoPreview(false)} 
+      />
     </div>
   );
 }
