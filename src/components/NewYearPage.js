@@ -8,12 +8,75 @@ export default function NewYearPage() {
   const [selectedMethod, setSelectedMethod] = useState('card');
   const [agreed, setAgreed] = useState(false);
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (!agreed) {
       alert('서비스 이용약관에 동의해주세요!');
       return;
     }
-    alert('✅ 신년운세 결제가 완료되었습니다!\n\n💡 실제로는 토스페이먼츠 결제로 구현됩니다.');
+    
+    // 로그인 체크
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+    
+    // 사용자 생년월일 정보 가져오기
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://ownwan-backend.onrender.com';
+      
+      const profileRes = await fetch(`${backendUrl}/api/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      const profileData = await profileRes.json();
+      
+      if (!profileData.success || !profileData.birth) {
+        alert('생년월일 정보가 필요합니다. 마이페이지에서 입력해주세요.');
+        navigate('/mypage');
+        return;
+      }
+      
+      // TODO: 실제 결제 연동 (토스페이먼츠)
+      // 지금은 테스트용으로 바로 API 호출
+      
+      const birth = profileData.birth;
+      const requestData = {
+        name: profileData.name || '사용자',
+        birthYear: birth.year,
+        birthMonth: birth.month,
+        birthDay: birth.day,
+        birthHour: birth.hour || 12,
+        gender: profileData.gender || '남자',
+        isLunar: birth.is_lunar || false
+      };
+      
+      // 신년운세 API 호출
+      const fortuneRes = await fetch(`${backendUrl}/api/newyear-fortune`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(requestData)
+      });
+      
+      const fortuneData = await fortuneRes.json();
+      
+      if (fortuneData.success) {
+        // 결과 페이지로 이동
+        navigate('/newyear-result', { state: { resultData: fortuneData } });
+      } else {
+        alert('운세 생성에 실패했습니다: ' + (fortuneData.error || '알 수 없는 오류'));
+      }
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert('오류가 발생했습니다: ' + error.message);
+    }
   };
 
   const paymentMethods = [

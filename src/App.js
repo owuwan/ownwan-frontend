@@ -18,6 +18,7 @@ import MyPage from './components/MyPage';
 import BottomNav from './components/BottomNav';
 import SignupPage from './components/SignupPage';
 import NewYearPage from './components/NewYearPage';
+import NewYearResultPage from './components/NewYearResultPage';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/newyear" element={<NewYearPage />} />
+          <Route path="/newyear-result" element={<NewYearResultPage />} />
         </Routes>
         <BottomNav />
       </div>
