@@ -91,8 +91,11 @@ export default function LoadingScreen({ type = 'daily' }) {
             <div className="relative mb-8 flex items-center justify-center" style={{ height: '130px' }}>
               <div className="relative">
                 {/* 궤도 원 - 뒤에 배치 */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <div className="w-[110px] h-[110px] border-2 border-yellow-500/30 border-dashed rounded-full" style={{
+                <div className="absolute top-1/2 left-1/2" style={{ transform: 'translate(-50%, -50%)' }}>
+                  <div className="border-2 border-dashed rounded-full" style={{
+                    width: '100px',
+                    height: '100px',
+                    borderColor: 'rgba(234, 179, 8, 0.3)',
                     animation: 'spin 10s linear infinite'
                   }}></div>
                 </div>
