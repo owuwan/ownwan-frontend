@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
 
     const navigate = useNavigate();
+  const [isTestLoginLoading, setIsTestLoginLoading] = useState(false);
 
   // 이미 로그인되어 있으면 메인페이지로 이동
   useEffect(() => {
@@ -147,6 +148,7 @@ export default function LoginPage() {
             <button
               onClick={async () => {
                 try {
+                  setIsTestLoginLoading(true);
                   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://ownwan-backend.onrender.com';
                   const response = await fetch(`${backendUrl}/api/auth/test-login`, {
                     method: 'POST',
@@ -158,20 +160,27 @@ export default function LoginPage() {
                     localStorage.setItem('access_token', data.token);
                     window.location.href = '/';
                   } else {
+                    setIsTestLoginLoading(false);
                     alert('테스트 로그인 실패: ' + data.message);
                   }
                 } catch (error) {
+                  setIsTestLoginLoading(false);
                   alert('테스트 로그인 오류: ' + error.message);
                 }
               }}
-              className="w-full mt-4 py-3 px-6 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2"
+              disabled={isTestLoginLoading}
+              className="w-full mt-4 py-3 px-6 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50"
               style={{
                 backgroundColor: '#EF4444',
                 color: '#FFFFFF'
               }}
             >
-              🧪 테스트 계정 로그인
-              <span className="text-xs opacity-80">(토스페이먼츠 심사용)</span>
+              {isTestLoginLoading ? '🔄 로그인 중...' : (
+                <>
+                  🧪 테스트 계정 로그인
+                  <span className="text-xs opacity-80">(토스페이먼츠 심사용)</span>
+                </>
+              )}
             </button>
 
             {/* 안내 문구 */}
