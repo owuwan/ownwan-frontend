@@ -426,6 +426,26 @@ export default function NewYearResultPage() {
           <p className="text-gray-700 leading-relaxed">{parsedFortune.yearlyAdvice}</p>
         </div>
 
+        {/* 알림톡 미리보기 섹션 */}
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-6 mb-6 animate-slideUp" style={{ animationDelay: '1.15s' }}>
+          <div className="text-center">
+            <p className="text-2xl mb-2">💌</p>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              매일 아침, 카톡으로 받아보세요!
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              일일사주 구독하면 매일 아침 8시<br/>
+              오늘의 운세가 카카오톡으로 도착해요
+            </p>
+            <button
+              onClick={() => alert('알림톡 미리보기 - 추후 연동 예정')}
+              className="bg-gradient-to-r from-amber-400 to-orange-400 text-gray-900 font-bold py-3 px-6 rounded-xl hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg cursor-pointer"
+            >
+              📱 알림톡 미리보기
+            </button>
+          </div>
+        </div>
+
         {/* 다른 운세 상품 프로모션 */}
         {showSubscribe && (
           <div className="bg-white rounded-3xl p-8 mb-6 border-2 border-gray-900 shadow-2xl animate-scaleIn">
