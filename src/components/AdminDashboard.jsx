@@ -227,7 +227,7 @@ export default function AdminDashboard() {
                   <TrendingUp className="w-6 h-6 text-gray-900" />
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-green-600">+{apiStats?.todayNewUsers || todayStats.newUsers}</div>
+                  <div className="text-2xl font-bold text-green-600">+{apiStats?.todayNewUsers ?? todayStats.newUsers}</div>
                   <div className="text-sm text-red-600">-{todayStats.churnUsers}</div>
                 </div>
               </div>
