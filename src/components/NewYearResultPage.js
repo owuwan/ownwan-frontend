@@ -73,10 +73,10 @@ export default function NewYearResultPage() {
   const parseNewYearFortune = (fortuneText) => {
     if (!fortuneText) return null;
     const sections = {
-      totalFortune: "", monthlyFortune: "", love: "", money: "",
-      career: "", health: "", luckyDirection: "", luckyNumbers: "",
-      luckyColors: "", bestMonths: "", cautionMonths: "", yearlyAdvice: ""
-    };
+  totalFortune: "", monthlyFortune: "", love: "", money: "",
+  career: "", health: "", relationship: "", luckyDirection: "", luckyNumbers: "",
+  luckyColors: "", bestMonths: "", cautionMonths: "", yearlyAdvice: ""
+};
     const lines = fortuneText.split('\n');
     let currentSection = '';
     for (const line of lines) {
@@ -98,26 +98,29 @@ export default function NewYearResultPage() {
         currentSection = 'career';
         sections.career += trimmed.replace(/^5\.|직장.*사업운:/i, '').trim() + ' ';
       } else if (trimmed.match(/^6\.|건강운:/i)) {
-        currentSection = 'health';
-        sections.health += trimmed.replace(/^6\.|건강운:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^7\.|행운의 방향:/i)) {
-        currentSection = 'luckyDirection';
-        sections.luckyDirection += trimmed.replace(/^7\.|행운의 방향:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^8\.|행운의 숫자:/i)) {
-        currentSection = 'luckyNumbers';
-        sections.luckyNumbers += trimmed.replace(/^8\.|행운의 숫자:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^9\.|행운의 컬러:/i)) {
-        currentSection = 'luckyColors';
-        sections.luckyColors += trimmed.replace(/^9\.|행운의 컬러:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^10\.|대길월:/i)) {
-        currentSection = 'bestMonths';
-        sections.bestMonths += trimmed.replace(/^10\.|.*대길월.*:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^11\.|주의월:/i)) {
-        currentSection = 'cautionMonths';
-        sections.cautionMonths += trimmed.replace(/^11\.|.*주의월.*:/i, '').trim() + ' ';
-      } else if (trimmed.match(/^12\.|종합 조언:/i)) {
-        currentSection = 'yearlyAdvice';
-        sections.yearlyAdvice += trimmed.replace(/^12\.|.*종합 조언.*:/i, '').trim() + ' ';
+  currentSection = 'health';
+  sections.health += trimmed.replace(/^6\.|건강운:/i, '').trim() + ' ';
+} else if (trimmed.match(/^7\.|대인관계운:/i)) {
+  currentSection = 'relationship';
+  sections.relationship += trimmed.replace(/^7\.|대인관계운:/i, '').trim() + ' ';
+} else if (trimmed.match(/^8\.|행운의 방향:/i)) {
+  currentSection = 'luckyDirection';
+  sections.luckyDirection += trimmed.replace(/^8\.|행운의 방향:/i, '').trim() + ' ';
+} else if (trimmed.match(/^9\.|행운의 숫자:/i)) {
+  currentSection = 'luckyNumbers';
+  sections.luckyNumbers += trimmed.replace(/^9\.|행운의 숫자:/i, '').trim() + ' ';
+} else if (trimmed.match(/^10\.|행운의 컬러:/i)) {
+  currentSection = 'luckyColors';
+  sections.luckyColors += trimmed.replace(/^10\.|행운의 컬러:/i, '').trim() + ' ';
+} else if (trimmed.match(/^11\.|대길월:/i)) {
+  currentSection = 'bestMonths';
+  sections.bestMonths += trimmed.replace(/^11\.|.*대길월.*:/i, '').trim() + ' ';
+} else if (trimmed.match(/^12\.|주의월:/i)) {
+  currentSection = 'cautionMonths';
+  sections.cautionMonths += trimmed.replace(/^12\.|.*주의월.*:/i, '').trim() + ' ';
+} else if (trimmed.match(/^13\.|종합 조언:/i)) {
+  currentSection = 'yearlyAdvice';
+  sections.yearlyAdvice += trimmed.replace(/^13\.|.*종합 조언.*:/i, '').trim() + ' ';
       } else if (currentSection === 'monthlyFortune' && trimmed.match(/^\d{1,2}월:/)) {
         sections.monthlyFortune += trimmed + '\n';
       } else if (currentSection) {
@@ -373,6 +376,13 @@ export default function NewYearResultPage() {
               건강운
             </h3>
             <p className="text-gray-700 text-sm leading-relaxed">{parsedFortune.health}</p>
+          </div>
+          <div className="bg-white rounded-3xl p-6 border-2 border-gray-900 shadow-2xl animate-slideUp" style={{ animationDelay: '0.55s' }}>
+            <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+              <Users className="w-5 h-5 text-purple-500" />
+              대인관계운
+            </h3>
+            <p className="text-gray-700 text-sm leading-relaxed">{parsedFortune.relationship}</p>
           </div>
         </div>
 

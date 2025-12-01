@@ -175,11 +175,12 @@ export default function NewYearPage() {
           <div className="space-y-3 mb-6">
             {[
               { icon: '📜', text: `${targetYear}년 한 해 종합 사주풀이` },
-              { icon: '📅', text: '월별 운세 (1월~12월 상세 분석)' },
-              { icon: '💕', text: '연애운 & 결혼운' },
-              { icon: '💰', text: '재물운 & 사업운' },
-              { icon: '💼', text: '취업운 & 직장운' },
-              { icon: '💪', text: '건강운 & 주의사항' }
+{ icon: '📅', text: '월별 운세 (1월~12월 상세 분석)' },
+{ icon: '💕', text: '연애운 & 결혼운' },
+{ icon: '💰', text: '재물운 & 사업운' },
+{ icon: '💼', text: '취업운 & 직장운' },
+{ icon: '💪', text: '건강운 & 주의사항' },
+{ icon: '🤝', text: '대인관계운 & 귀인운' }
             ].map((item, idx) => (
               <div key={idx} className="flex items-center gap-3 bg-red-50 rounded-lg p-3 border border-red-200">
                 <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
