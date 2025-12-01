@@ -41,11 +41,22 @@ export default function MyPage() {
   const activeCount = Object.values(purchaseStatus).filter(v => v).length;
 
   const orbData = [
-    { key: 'daily', name: '일일사주', icon: '☀️', color: '#3b82f6', lightColor: '#dbeafe', angle: -135, desc: '매일 새로운 운세' },
-    { key: 'lifetime', name: '평생사주', icon: '⭐', color: '#f59e0b', lightColor: '#fef3c7', angle: -45, desc: '평생의 운명을 알다' },
-    { key: 'monthly', name: '월간사주', icon: '🌙', color: '#10b981', lightColor: '#d1fae5', angle: 135, desc: '이번 달 행운의 흐름' },
-    { key: 'newyear', name: '신년운세', icon: '🎆', color: '#ef4444', lightColor: '#fee2e2', angle: 45, desc: '2025년 대운을 확인' }
+    { key: 'daily', name: '일일사주', icon: '☀️', color: '#3b82f6', lightColor: '#dbeafe', angle: -135, desc: '매일 새로운 운세', reward: '일일 운세 무제한' },
+    { key: 'lifetime', name: '평생사주', icon: '⭐', color: '#f59e0b', lightColor: '#fef3c7', angle: -45, desc: '평생의 운명을 알다', reward: '평생 사주 분석' },
+    { key: 'monthly', name: '월간사주', icon: '🌙', color: '#10b981', lightColor: '#d1fae5', angle: 135, desc: '이번 달 행운의 흐름', reward: '월간 운세 리포트' },
+    { key: 'newyear', name: '신년운세', icon: '🎆', color: '#ef4444', lightColor: '#fee2e2', angle: 45, desc: '2025년 대운을 확인', reward: '2025 신년 특별 운세' }
   ];
+
+  // 등급 시스템
+  const getRankTitle = () => {
+    if (activeCount === 0) return { title: '입문자', emoji: '🌱', color: '#9ca3af', bgColor: '#f3f4f6' };
+    if (activeCount === 1) return { title: '수련생', emoji: '🔮', color: '#3b82f6', bgColor: '#dbeafe' };
+    if (activeCount === 2) return { title: '탐험가', emoji: '⚡', color: '#8b5cf6', bgColor: '#ede9fe' };
+    if (activeCount === 3) return { title: '현자', emoji: '🌟', color: '#f59e0b', bgColor: '#fef3c7' };
+    return { title: '운명의 주인', emoji: '👑', color: '#ef4444', bgColor: '#fee2e2' };
+  };
+  const rank = getRankTitle();
+  const progressPercent = (activeCount / 4) * 100;
 
   // 파티클 생성
   useEffect(() => {
@@ -320,6 +331,10 @@ export default function MyPage() {
           0% { opacity: 0.6; transform: translateY(0) scale(1); }
           100% { opacity: 0; transform: translateY(-80px) scale(0); }
         }
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
       `}</style>
 
       {/* 육각형 패턴 배경 */}
@@ -452,7 +467,59 @@ export default function MyPage() {
             }}
           />
 
-          <div className="text-center mb-5 relative z-10">
+          {/* 등급 + 프로그레스 바 */}
+          <div 
+            className="relative z-10 mb-4 p-3 rounded-xl"
+            style={{
+              background: `linear-gradient(135deg, ${rank.bgColor} 0%, white 100%)`,
+              border: `2px solid ${rank.color}40`
+            }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{rank.emoji}</span>
+                <div>
+                  <div className="text-[10px] text-gray-500">현재 등급</div>
+                  <div className="text-sm font-bold" style={{ color: rank.color }}>{rank.title}</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-[10px] text-gray-500">수집률</div>
+                <div className="text-xl font-bold" style={{ color: rank.color }}>{activeCount}/4</div>
+              </div>
+            </div>
+            
+            {/* 프로그레스 바 */}
+            <div className="bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div 
+                className="h-full rounded-full relative overflow-hidden transition-all duration-500"
+                style={{ 
+                  width: `${progressPercent}%`,
+                  background: `linear-gradient(90deg, ${rank.color}, ${rank.color}aa)`
+                }}
+              >
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
+                    animation: 'shimmer 2s infinite'
+                  }}
+                />
+              </div>
+            </div>
+            
+            {activeCount < 4 ? (
+              <div className="text-[10px] text-gray-500 mt-1 flex items-center gap-1">
+                <span>🎯</span> 다음 등급까지 {4 - activeCount}개 남음
+              </div>
+            ) : (
+              <div className="text-[10px] font-bold mt-1 flex items-center gap-1" style={{ color: '#f59e0b' }}>
+                <span>🎉</span> 축하합니다! 모든 구슬을 수집했습니다!
+              </div>
+            )}
+          </div>
+
+          <div className="text-center mb-4 relative z-10">
             <h2 className="text-sm font-bold text-gray-900 flex items-center justify-center gap-1 mb-1">
               <span
                 style={{
@@ -463,7 +530,7 @@ export default function MyPage() {
               >
                 ✧
               </span>
-              나의 사주 컬렉션
+              운명의 구슬
               <span
                 style={{
                   background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
@@ -474,7 +541,7 @@ export default function MyPage() {
                 ✧
               </span>
             </h2>
-            <p className="text-gray-400 text-xs">운명의 구슬을 수집하세요</p>
+            <p className="text-gray-400 text-[10px]">구슬을 클릭하여 운명을 해금하세요</p>
           </div>
 
           {/* 메인 구슬 컨테이너 */}
@@ -654,7 +721,7 @@ export default function MyPage() {
                       transition: 'all 0.3s ease'
                     }}
                   >
-                    {orb.icon}
+                    {isActive ? orb.icon : '🔒'}
                   </span>
                   <span
                     style={{
@@ -689,6 +756,45 @@ export default function MyPage() {
                       }}
                     >
                       ✓
+                    </div>
+                  )}
+
+                  {/* 호버 툴팁 */}
+                  {isHovered && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: '-55px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        background: 'white',
+                        padding: '8px 12px',
+                        borderRadius: '10px',
+                        whiteSpace: 'nowrap',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                        border: `2px solid ${isActive ? orb.color : '#e5e7eb'}`,
+                        zIndex: 100
+                      }}
+                    >
+                      <div style={{ fontSize: '10px', fontWeight: 'bold', color: isActive ? orb.color : '#9ca3af', marginBottom: '2px' }}>
+                        {isActive ? '✓ 해금됨' : '🔒 잠김'}
+                      </div>
+                      <div style={{ fontSize: '9px', color: '#6b7280' }}>
+                        {orb.reward}
+                      </div>
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '-6px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          width: 0,
+                          height: 0,
+                          borderLeft: '6px solid transparent',
+                          borderRight: '6px solid transparent',
+                          borderBottom: `6px solid ${isActive ? orb.color : '#e5e7eb'}`
+                        }}
+                      />
                     </div>
                   )}
 
@@ -743,7 +849,7 @@ export default function MyPage() {
                   boxShadow: '0 2px 8px rgba(139,92,246,0.4)'
                 }}
               />
-              <span className="text-gray-500">결제 완료</span>
+              <span className="text-gray-500">✓ 해금됨</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div
@@ -752,10 +858,14 @@ export default function MyPage() {
                   height: '14px',
                   borderRadius: '50%',
                   background: '#e5e7eb',
-                  border: '1px solid #d1d5db'
+                  border: '1px solid #d1d5db',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '8px'
                 }}
-              />
-              <span className="text-gray-400">미결제</span>
+              >🔒</div>
+              <span className="text-gray-400">잠김</span>
             </div>
           </div>
         </div>
