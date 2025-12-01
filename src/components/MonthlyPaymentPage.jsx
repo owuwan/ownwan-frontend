@@ -178,17 +178,18 @@ export default function MonthlyPaymentPage() {
           {/* 혜택 리스트 */}
           <div className="space-y-3 mb-6">
             {[
-              '이번 달 종합운',
-              '14가지 세부 운세 (애정, 사업, 금전 등)',
-              '행운의 날 & 주의할 시기',
-              '행운의 색상 & 월간 조언',
-              '마이페이지에서 언제든 다시 보기'
+              { icon: '📜', text: '이번 달 종합 사주풀이' },
+              { icon: '💕', text: '애정운 & 대인관계운' },
+              { icon: '💰', text: '금전운 & 사업운' },
+              { icon: '💼', text: '직장운 & 학업운' },
+              { icon: '💪', text: '건강운 & 가족운' },
+              { icon: '🧳', text: '여행운 & 부동산운' },
+              { icon: '📅', text: '행운의 날 & 주의할 시기' },
+              { icon: '🎨', text: '행운의 컬러 & 월간 조언' }
             ].map((item, idx) => (
               <div key={idx} className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-300">
-                <div className="w-6 h-6 rounded-full bg-gray-900 flex items-center justify-center flex-shrink-0">
-                  <Check className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-gray-900 text-sm font-medium">{item}</span>
+                <span className="text-xl">{item.icon}</span>
+                <span className="text-gray-900 text-sm font-medium">{item.text}</span>
               </div>
             ))}
           </div>

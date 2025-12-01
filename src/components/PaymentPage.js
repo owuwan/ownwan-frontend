@@ -175,17 +175,18 @@ export default function AlldayPaymentPage() {
           {/* 혜택 리스트 */}
           <div className="space-y-3 mb-6">
             {[
-              '매일 아침 8시 카톡 알림',
-              '일일 사주운세 (15가지)',
-              '월간 사주운세 (매월 1일)',
-              '오늘의 행운번호 & 컬러',
-              '오늘의 리스크 알림'
+              { icon: '📜', text: '오늘 하루 종합 사주풀이' },
+              { icon: '💕', text: '애정운 & 대인관계운' },
+              { icon: '💰', text: '금전운 & 사업운' },
+              { icon: '💼', text: '직장운 & 학업운' },
+              { icon: '💪', text: '건강운 & 가족운' },
+              { icon: '🧳', text: '여행운 & 부동산운' },
+              { icon: '🎯', text: '행운의 숫자/컬러/장소' },
+              { icon: '⚠️', text: '오늘의 리스크 알림' }
             ].map((item, idx) => (
               <div key={idx} className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-300">
-                <div className="w-6 h-6 rounded-full bg-gray-900 flex items-center justify-center flex-shrink-0">
-                  <Check className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-gray-900 text-sm font-medium">{item}</span>
+                <span className="text-xl">{item.icon}</span>
+                <span className="text-gray-900 text-sm font-medium">{item.text}</span>
               </div>
             ))}
           </div>

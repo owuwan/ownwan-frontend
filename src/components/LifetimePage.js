@@ -163,20 +163,20 @@ export default function AlldayLifetimePaymentPage() {
           {/* 혜택 리스트 */}
           <div className="space-y-3 mb-6">
             {[
-              '천간·지지·명운 운세 분석',
-              '생애운 & 직업운 운별 해설',
-              '재운 & 재물운 가이드',
-              '연애운 & 결혼운 추정리',
-              '건강운 & 주의사항 알림',
-              '평생 연별 & 궁합 분석',
-              '인생 전체 흐름 파악',
-              '평생 소장 가능한 PDF'
+              { icon: '🌟', text: '타고난 성격 & 기질 분석' },
+              { icon: '📅', text: '초년운·중년운·말년운 해설' },
+              { icon: '📈', text: '10년 대운 흐름 분석' },
+              { icon: '💕', text: '평생 애정운 & 결혼운' },
+              { icon: '💰', text: '평생 재물운 & 금전 흐름' },
+              { icon: '💼', text: '직업 적성 & 성공 분야' },
+              { icon: '💪', text: '평생 건강운 & 주의사항' },
+              { icon: '👶', text: '자녀운 & 귀인운' },
+              { icon: '🎯', text: '행운 요소 (방향/숫자/컬러)' },
+              { icon: '🔮', text: '인생 전환점 & 종합 조언' }
             ].map((item, idx) => (
               <div key={idx} className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-300">
-                <div className="w-6 h-6 rounded-full bg-gray-900 flex items-center justify-center flex-shrink-0">
-                  <Check className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-gray-900 text-sm font-medium">{item}</span>
+                <span className="text-xl">{item.icon}</span>
+                <span className="text-gray-900 text-sm font-medium">{item.text}</span>
               </div>
             ))}
           </div>
