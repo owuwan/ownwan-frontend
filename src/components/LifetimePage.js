@@ -61,7 +61,8 @@ export default function AlldayLifetimePaymentPage() {
               name: profileData.name || '사용자',
               birth_date: `${birth.year}.${birth.month}.${birth.day}`,
               gender: profileData.gender || '남자',
-              saju: { year: "경오", month: "정묘", day: "병자", hour: "무신" }
+              saju: { year: "경오", month: "정묘", day: "병자", hour: "무신" },
+                element_count: { 목: 1, 화: 4, 토: 0, 금: 1, 수: 2 }
             }
           }
         });
