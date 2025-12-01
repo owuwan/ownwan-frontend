@@ -76,7 +76,7 @@ export default function MonthlyPaymentPage() {
       
       const fortuneData = await fortuneRes.json();
       
-      if (fortuneData.success) {
+      if (fortuneData.gpt_fortune) {
         // 결과 페이지로 이동
         navigate('/monthly-result', { state: { resultData: fortuneData } });
       } else {
