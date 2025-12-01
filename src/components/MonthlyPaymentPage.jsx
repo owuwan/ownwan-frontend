@@ -78,7 +78,7 @@ export default function MonthlyPaymentPage() {
       
       if (fortuneData.gpt_fortune) {
         // 결과 페이지로 이동
-        navigate('/monthly-result', { state: { resultData: fortuneData } });
+        navigate('/monthly-result', { state: { monthlyData: fortuneData } });
       } else {
         alert('운세 생성에 실패했습니다: ' + (fortuneData.error || '알 수 없는 오류'));
         setIsLoading(false);
