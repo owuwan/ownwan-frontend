@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Star, Heart, Briefcase, DollarSign, Activity, MapPin, Hash, Palette, Calendar } from 'lucide-react';
+import { Star, Heart, Briefcase, DollarSign, Activity, Users, MapPin, Hash, Palette, Calendar } from 'lucide-react';
 import KakaoPreviewModal from './KakaoPreviewModal';
 
 export default function NewYearResultPage() {
