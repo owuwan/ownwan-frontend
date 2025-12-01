@@ -19,7 +19,7 @@ export default function AdminLogin() {
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
       // 로그인 성공!
       localStorage.setItem('adminLoggedIn', 'true');
-      navigate('/secret-admin-choi920318/dashboard');
+      navigate('/admin/dashboard');
     } else {
       // 로그인 실패!
       setError('아이디 또는 비밀번호가 틀렸습니다.');

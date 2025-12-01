@@ -10,13 +10,13 @@ export default function AdminDashboard() {
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('adminLoggedIn');
     if (isLoggedIn !== 'true') {
-      navigate('/secret-admin-choi920318');
+      navigate('/admin/login');
     }
   }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('adminLoggedIn');
-    navigate('/secret-admin-choi920318');
+    navigate('/admin/login');
   };
 
   const todayStats = {
