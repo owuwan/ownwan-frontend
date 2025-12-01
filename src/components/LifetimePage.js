@@ -52,21 +52,34 @@ export default function AlldayLifetimePaymentPage() {
       
       setIsLoading(true);
       
-      // TODO: 평생사주 API 연동 (현재는 더미데이터)
-      // 로딩 효과를 위해 잠시 대기
-      setTimeout(() => {
-        navigate('/lifetime-result', { 
-          state: { 
-            sajuData: {
-              name: profileData.name || '사용자',
-              birth_date: `${birth.year}.${birth.month}.${birth.day}`,
-              gender: profileData.gender || '남자',
-              saju: { year: "경오", month: "정묘", day: "병자", hour: "무신" },
-                element_count: { 목: 1, 화: 4, 토: 0, 금: 1, 수: 2 }
-            }
-          }
-        });
-      }, 3000);
+      // 평생사주 API 호출
+      const requestData = {
+        name: profileData.name || '사용자',
+        birthYear: birth.year,
+        birthMonth: birth.month,
+        birthDay: birth.day,
+        birthHour: birth.hour || 12,
+        gender: profileData.gender || '남자',
+        isLunar: birth.is_lunar || false
+      };
+      
+      const fortuneRes = await fetch(`${backendUrl}/api/lifetime-fortune`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(requestData)
+      });
+      
+      const fortuneData = await fortuneRes.json();
+      
+      if (fortuneData.success && fortuneData.gpt_fortune) {
+        navigate('/lifetime-result', { state: { sajuData: fortuneData } });
+      } else {
+        alert('평생사주 생성에 실패했습니다: ' + (fortuneData.error || '알 수 없는 오류'));
+        setIsLoading(false);
+      }
       
     } catch (error) {
       console.error('Error:', error);
