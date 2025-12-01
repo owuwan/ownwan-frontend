@@ -27,6 +27,17 @@ export default function MyPage() {
   // 🔥 고객센터 모달 상태
   const [activeModal, setActiveModal] = useState(null);
 
+  // 🔥 결제 상태 (나의 사주 컬렉션)
+  const [purchaseStatus, setPurchaseStatus] = useState({
+    daily: false,
+    monthly: false,
+    newyear: false,
+    lifetime: false
+  });
+
+  // 활성화된 구슬 개수 계산
+  const activeCount = Object.values(purchaseStatus).filter(v => v).length;
+
   // 페이지 로드 시 기존 정보 불러오기
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -75,6 +86,35 @@ export default function MyPage() {
     fetchUserInfo();
   }, []);
 
+  // 🔥 결제 상태 불러오기 (TODO: 백엔드 API 연동 후 활성화)
+  useEffect(() => {
+    const fetchPurchaseStatus = async () => {
+      try {
+        const backendUrl = window.location.hostname === 'localhost'
+          ? 'https://ownwan-backend.onrender.com'
+          : `https://ownwan-backend.onrender.com`;
+
+        const token = localStorage.getItem('access_token');
+        const response = await fetch(`${backendUrl}/api/purchase-status`, {
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setPurchaseStatus(data);
+        }
+      } catch (error) {
+        console.error('❌ 결제 상태 불러오기 실패:', error);
+        // 실패해도 기본값 유지
+      }
+    };
+
+    fetchPurchaseStatus();
+  }, []);
+
   // 🚪 로그아웃 핸들러
   const handleLogout = async () => {
     try {
@@ -116,6 +156,29 @@ export default function MyPage() {
     e.preventDefault(); // 🔥 form submit 방지!
     setIsEditing(true);
     setError('');
+  };
+
+  // 🔥 구슬 클릭 핸들러
+  const handleOrbClick = (type) => {
+    if (purchaseStatus[type]) {
+      // 결제 완료 → 결과 페이지로 이동
+      const routes = {
+        daily: '/daily-result',
+        monthly: '/monthly-result',
+        newyear: '/newyear-result',
+        lifetime: '/lifetime-result'
+      };
+      navigate(routes[type]);
+    } else {
+      // 미결제 → 결제 페이지로 이동
+      const routes = {
+        daily: '/payment',
+        monthly: '/monthly-payment',
+        newyear: '/newyear',
+        lifetime: '/lifetime'
+      };
+      navigate(routes[type]);
+    }
   };
 
   // 제출 핸들러
@@ -215,11 +278,71 @@ export default function MyPage() {
     }
   };
 
+  // 🔥 구슬 컴포넌트
+  const Orb = ({ name, emoji, color, active, style, onClick, delay = 0 }) => (
+    <div
+      onClick={onClick}
+      className="absolute cursor-pointer transition-all duration-300"
+      style={{
+        ...style,
+        width: '75px',
+        height: '75px',
+        borderRadius: '50%',
+        background: active 
+          ? `linear-gradient(135deg, ${color}dd 0%, ${color} 50%, ${color}bb 100%)`
+          : 'linear-gradient(135deg, #e0e0e0 0%, #c0c0c0 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: active 
+          ? `0 4px 20px ${color}60, 0 0 30px ${color}30, inset 0 2px 10px rgba(255,255,255,0.4)`
+          : '0 4px 15px rgba(0,0,0,0.1), inset 0 2px 10px rgba(255,255,255,0.5)',
+        border: active ? `3px solid ${color}` : '3px solid #d0d0d0',
+        animation: active ? `float 3s ease-in-out infinite` : 'none',
+        animationDelay: `${delay}s`
+      }}
+    >
+      <div style={{ 
+        fontSize: '26px', 
+        marginBottom: '2px',
+        filter: active ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'grayscale(100%) opacity(0.4)'
+      }}>
+        {emoji}
+      </div>
+      <div style={{ 
+        fontSize: '10px', 
+        color: active ? '#fff' : '#999',
+        fontWeight: 'bold',
+        textShadow: active ? '0 1px 2px rgba(0,0,0,0.3)' : 'none'
+      }}>
+        {name}
+      </div>
+      {active && (
+        <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-xs font-bold shadow-lg border-2 border-white">
+          ✓
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div
       className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#f5f7fa] via-[#e8eaf0] to-[#f0f2f8] pb-20"
       style={{ fontFamily: 'Nanum Gothic, sans-serif' }}
     >
+      {/* 🔥 구슬 애니메이션 CSS */}
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+        @keyframes pulse {
+          0%, 100% { transform: translateX(-50%) scale(1); }
+          50% { transform: translateX(-50%) scale(1.03); }
+        }
+      `}</style>
+
       {/* 🔥 성공 모달 */}
       {showSuccessModal && (
         <div
@@ -294,6 +417,173 @@ export default function MyPage() {
           <p className="text-gray-600 text-xs">
             정확한 사주 분석을 위해<br></br>생년월일과 출생 시간을 입력해주세요
           </p>
+        </div>
+
+        {/* 🔥 나의 사주 컬렉션 - 구슬 UI */}
+        <div className="bg-white rounded-2xl p-5 shadow-xl border-2 border-gray-900 mb-4">
+          <div className="text-center mb-4">
+            <h2 className="text-sm font-bold text-gray-900 flex items-center justify-center gap-1 mb-1">
+              <span>🔮</span> 나의 사주 컬렉션
+            </h2>
+            <p className="text-gray-400 text-xs">구슬을 터치하여 운세를 확인하세요</p>
+          </div>
+
+          {/* 구슬 컨테이너 */}
+          <div className="relative mx-auto" style={{ width: '280px', height: '340px' }}>
+            
+            {/* 연결선 SVG */}
+            <svg
+              className="absolute top-0 left-0 w-full h-full pointer-events-none"
+            >
+              <defs>
+                <linearGradient id="activeLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.6" />
+                  <stop offset="50%" stopColor="#a855f7" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.6" />
+                </linearGradient>
+                <linearGradient id="inactiveLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#d1d5db" stopOpacity="0.5" />
+                  <stop offset="100%" stopColor="#d1d5db" stopOpacity="0.5" />
+                </linearGradient>
+              </defs>
+              
+              {/* 태극 → 일일 */}
+              <line x1="140" y1="70" x2="60" y2="140" 
+                stroke={purchaseStatus.daily ? "url(#activeLineGradient)" : "url(#inactiveLineGradient)"} 
+                strokeWidth="3" 
+                strokeLinecap="round"
+              />
+              {/* 태극 → 평생 */}
+              <line x1="140" y1="70" x2="220" y2="140" 
+                stroke={purchaseStatus.lifetime ? "url(#activeLineGradient)" : "url(#inactiveLineGradient)"} 
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+              {/* 일일 → 월간 */}
+              <line x1="60" y1="180" x2="85" y2="265" 
+                stroke={purchaseStatus.monthly ? "url(#activeLineGradient)" : "url(#inactiveLineGradient)"} 
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+              {/* 평생 → 신년 */}
+              <line x1="220" y1="180" x2="195" y2="265" 
+                stroke={purchaseStatus.newyear ? "url(#activeLineGradient)" : "url(#inactiveLineGradient)"} 
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+              {/* 월간 ↔ 신년 */}
+              <line x1="120" y1="290" x2="160" y2="290" 
+                stroke={purchaseStatus.monthly && purchaseStatus.newyear ? "url(#activeLineGradient)" : "url(#inactiveLineGradient)"} 
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+            </svg>
+
+            {/* 태극 구슬 (상단 중앙) */}
+            <div 
+              className="absolute"
+              style={{
+                top: '0px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                animation: activeCount > 0 ? 'pulse 3s infinite' : 'none'
+              }}
+            >
+              <div
+                style={{
+                  width: '85px',
+                  height: '85px',
+                  borderRadius: '50%',
+                  background: `conic-gradient(
+                    #8b5cf6 0deg ${activeCount * 90}deg,
+                    #e5e7eb ${activeCount * 90}deg 360deg
+                  )`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: activeCount > 0 
+                    ? '0 4px 20px rgba(139, 92, 246, 0.4), inset 0 2px 10px rgba(255,255,255,0.3)'
+                    : '0 4px 15px rgba(0,0,0,0.1), inset 0 2px 10px rgba(255,255,255,0.5)',
+                  border: '3px solid #1f2937'
+                }}
+              >
+                <div
+                  style={{
+                    width: '54px',
+                    height: '54px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #f5f7fa 0%, #e8eaf0 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '28px',
+                    border: '2px solid #d1d5db'
+                  }}
+                >
+                  ☯️
+                </div>
+              </div>
+              <div className="text-center mt-2 text-xs text-gray-500 font-bold">
+                {activeCount}/4 완성
+              </div>
+            </div>
+
+            {/* 일일사주 구슬 (왼쪽 위) */}
+            <Orb
+              name="일일사주"
+              emoji="☀️"
+              color="#3b82f6"
+              active={purchaseStatus.daily}
+              style={{ top: '115px', left: '15px' }}
+              delay={0}
+              onClick={() => handleOrbClick('daily')}
+            />
+
+            {/* 평생사주 구슬 (오른쪽 위) */}
+            <Orb
+              name="평생사주"
+              emoji="⭐"
+              color="#f59e0b"
+              active={purchaseStatus.lifetime}
+              style={{ top: '115px', right: '15px' }}
+              delay={0.5}
+              onClick={() => handleOrbClick('lifetime')}
+            />
+
+            {/* 월간사주 구슬 (왼쪽 아래) */}
+            <Orb
+              name="월간사주"
+              emoji="🌙"
+              color="#10b981"
+              active={purchaseStatus.monthly}
+              style={{ top: '245px', left: '40px' }}
+              delay={1}
+              onClick={() => handleOrbClick('monthly')}
+            />
+
+            {/* 신년운세 구슬 (오른쪽 아래) */}
+            <Orb
+              name="신년운세"
+              emoji="🎆"
+              color="#ef4444"
+              active={purchaseStatus.newyear}
+              style={{ top: '245px', right: '40px' }}
+              delay={1.5}
+              onClick={() => handleOrbClick('newyear')}
+            />
+          </div>
+
+          {/* 범례 */}
+          <div className="flex justify-center gap-5 mt-4 text-xs">
+            <div className="flex items-center gap-1.5">
+              <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 shadow-md" />
+              <span className="text-gray-500">결제 완료</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3.5 h-3.5 rounded-full bg-gray-300 border border-gray-400" />
+              <span className="text-gray-400">미결제</span>
+            </div>
+          </div>
         </div>
 
         {/* 입력 폼 */}
@@ -544,7 +834,7 @@ export default function MyPage() {
         {/* 로그아웃 버튼 */}
         <button
           onClick={handleLogout}
-          className="w-full py-2.5 rounded-lg font-bold text-sm bg-red-500 text-white hover:bg-red-600 shadow-md hover:shadow-lg transition-all"
+          className="w-full py-2.5 rounded-lg font-bold text-sm bg-red-500 text-white hover:bg-red-600 shadow-md hover:shadow-lg transition-all mt-4"
         >
           로그아웃
         </button>
