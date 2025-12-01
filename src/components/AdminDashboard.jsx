@@ -5,6 +5,9 @@ import { DollarSign, Users, TrendingUp, Bell, CheckCircle, XCircle, Calendar, Sm
 
 export default function AdminDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState('today');
+  const [apiStats, setApiStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const backendUrl = 'https://ownwan-backend.onrender.com';
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,6 +16,24 @@ export default function AdminDashboard() {
       navigate('/admin/login');
     }
   }, [navigate]);
+
+  // API에서 통계 데이터 가져오기
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch(`${backendUrl}/api/admin/stats`);
+        const data = await response.json();
+        if (data.success) {
+          setApiStats(data.stats);
+        }
+      } catch (error) {
+        console.error('통계 로드 실패:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('adminLoggedIn');
@@ -160,7 +181,7 @@ export default function AdminDashboard() {
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Calendar className="w-4 h-4" />
-            <span>2025년 11월 2일 오후 3:45 기준</span>
+            <span>{apiStats?.lastUpdated || '데이터 로딩 중...'} 기준</span>
           </div>
         </div>
 
@@ -206,13 +227,13 @@ export default function AdminDashboard() {
                   <TrendingUp className="w-6 h-6 text-gray-900" />
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-green-600">+{todayStats.newUsers}</div>
+                  <div className="text-2xl font-bold text-green-600">+{apiStats?.todayNewUsers || todayStats.newUsers}</div>
                   <div className="text-sm text-red-600">-{todayStats.churnUsers}</div>
                 </div>
               </div>
               <h3 className="text-gray-700 font-bold mb-2">사용자 증감</h3>
               <div className="text-sm text-gray-600">
-                전체: {todayStats.totalUsers.toLocaleString()}명
+                전체: {apiStats?.totalUsers?.toLocaleString() || todayStats.totalUsers.toLocaleString()}명
               </div>
             </div>
 
