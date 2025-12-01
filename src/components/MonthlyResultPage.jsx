@@ -542,30 +542,79 @@ export default function MonthlyResultPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowModal(false)}>
           <div className="bg-white rounded-2xl p-6 max-w-md w-full max-h-[85vh] flex flex-col border-4 border-gray-900" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-bold text-lg mb-4">💡 사주 계산 방식 안내</h3>
+            
             <div className="space-y-4 text-sm text-gray-700 overflow-y-auto flex-1 pr-2">
-              <p>본 서비스는 <strong>전통 만세력 기준</strong>으로 사주를 계산합니다.</p>
+              <p>본 서비스는 <strong>전통 만세력 기준</strong>으로<br />사주를 계산합니다.</p>
+              <p>24절기의 절입시간을 적용하여,<br />한국에서 가장 보편적으로 사용되는<br />방식입니다.</p>
+              
               <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
                 <p className="font-medium text-blue-900 mb-3">왜 철학관, 사이트마다 다를까요?</p>
                 <div className="space-y-2">
-                  {[
-                    { key: 'item1', title: '절입시간 적용 여부', desc: '사주의 "월"은 양력 1일이 아니라 24절기를 기준으로 바뀝니다.' },
-                    { key: 'item2', title: '진태양시 보정 여부', desc: '한국 표준시는 동경 135도 기준이지만, 서울은 동경 127도에 위치해 약 32분 차이가 납니다.' },
-                    { key: 'item3', title: '양력/음력 변환 방식', desc: '음력을 양력으로 변환하는 계산 방식이 사이트마다 다를 수 있습니다.' },
-                    { key: 'item4', title: '시간 경계 처리', desc: '자시는 밤 11시부터 새벽 1시까지인데, 해석이 다릅니다.' },
-                    { key: 'item5', title: '출생 시간 불명확', desc: '정확한 출생 시간을 모르는 경우 기본값 처리 방식이 다릅니다.' }
-                  ].map((item) => (
-                    <div key={item.key} className="border-b border-blue-200 last:border-0">
-                      <button onClick={() => toggleItem(item.key)} className="w-full text-left py-2 flex items-center justify-between text-xs font-semibold text-blue-900 hover:text-blue-700">
-                        <span>• {item.title}</span>
-                        <span className="text-blue-600">{openItems[item.key] ? '▲' : '▼'}</span>
-                      </button>
-                      {openItems[item.key] && <p className="text-xs text-blue-700 ml-3 pb-2">{item.desc}</p>}
-                    </div>
-                  ))}
+                  
+                  <div className="border-b border-blue-200 last:border-0">
+                    <button onClick={() => toggleItem('item1')} className="w-full text-left py-2 flex items-center justify-between text-xs font-semibold text-blue-900 hover:text-blue-700">
+                      <span>• 절입시간 적용 여부</span>
+                      <span className="text-blue-600">{openItems.item1 ? '▲' : '▼'}</span>
+                    </button>
+                    {openItems.item1 && (
+                      <p className="text-xs text-blue-700 ml-3 pb-2">사주의 "월"은 양력 1일이 아니라 24절기를 기준으로 바뀝니다. 예를 들어 3월 5일 경칩 이전 출생자는 "2월생"으로 계산됩니다.</p>
+                    )}
+                  </div>
+
+                  <div className="border-b border-blue-200 last:border-0">
+                    <button onClick={() => toggleItem('item2')} className="w-full text-left py-2 flex items-center justify-between text-xs font-semibold text-blue-900 hover:text-blue-700">
+                      <span>• 진태양시 보정 여부</span>
+                      <span className="text-blue-600">{openItems.item2 ? '▲' : '▼'}</span>
+                    </button>
+                    {openItems.item2 && (
+                      <p className="text-xs text-blue-700 ml-3 pb-2">한국 표준시는 동경 135도 기준이지만, 서울은 동경 127도에 위치해 실제 태양 위치와 약 32분 차이가 납니다.</p>
+                    )}
+                  </div>
+
+                  <div className="border-b border-blue-200 last:border-0">
+                    <button onClick={() => toggleItem('item3')} className="w-full text-left py-2 flex items-center justify-between text-xs font-semibold text-blue-900 hover:text-blue-700">
+                      <span>• 양력/음력 변환 방식</span>
+                      <span className="text-blue-600">{openItems.item3 ? '▲' : '▼'}</span>
+                    </button>
+                    {openItems.item3 && (
+                      <p className="text-xs text-blue-700 ml-3 pb-2">음력을 양력으로 변환하는 계산 방식이 사이트마다 다를 수 있습니다. 특히 윤달이나 작은달/큰달 처리 방식에 따라 차이가 날 수 있습니다.</p>
+                    )}
+                  </div>
+
+                  <div className="border-b border-blue-200 last:border-0">
+                    <button onClick={() => toggleItem('item4')} className="w-full text-left py-2 flex items-center justify-between text-xs font-semibold text-blue-900 hover:text-blue-700">
+                      <span>• 시간 경계 처리</span>
+                      <span className="text-blue-600">{openItems.item4 ? '▲' : '▼'}</span>
+                    </button>
+                    {openItems.item4 && (
+                      <p className="text-xs text-blue-700 ml-3 pb-2">자시는 밤 11시부터 새벽 1시까지인데, 밤 11시~12시를 "전날"로 볼지 "당일"로 볼지에 대한 해석이 다릅니다.</p>
+                    )}
+                  </div>
+
+                  <div className="border-b border-blue-200 last:border-0">
+                    <button onClick={() => toggleItem('item5')} className="w-full text-left py-2 flex items-center justify-between text-xs font-semibold text-blue-900 hover:text-blue-700">
+                      <span>• 출생 시간 불명확</span>
+                      <span className="text-blue-600">{openItems.item5 ? '▲' : '▼'}</span>
+                    </button>
+                    {openItems.item5 && (
+                      <p className="text-xs text-blue-700 ml-3 pb-2">정확한 출생 시간을 모르는 경우, 전통적으로는 낮 12시를 기본값으로 사용하지만, 일부 사이트는 오후 2시를 사용합니다.</p>
+                    )}
+                  </div>
+
                 </div>
               </div>
+              
+              <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-400">
+                <p className="font-medium text-purple-900 mb-2">🎯 가장 중요한 것은</p>
+                <p className="text-xs text-purple-800">정확한 사주 계산보다 더 중요한 것은 <strong>오늘 당신 사주에 맞는 조언과 실천 가능한 방향</strong>입니다.</p>
+              </div>
+              
+              <p className="text-gray-500 text-xs pt-2">같은 사주를 가진 사람도<br />삶의 방향은 다르게 펼쳐집니다.</p>
             </div>
-            <button onClick={() => setShowModal(false)} className="mt-4 w-full bg-gray-900 text-white py-3 rounded-xl hover:bg-gray-800 flex-shrink-0 font-bold">확인</button>
+            
+            <button onClick={() => setShowModal(false)} className="mt-4 w-full bg-gray-900 text-white py-3 rounded-xl hover:bg-gray-800 flex-shrink-0 font-bold">
+              확인
+            </button>
           </div>
         </div>
       )}

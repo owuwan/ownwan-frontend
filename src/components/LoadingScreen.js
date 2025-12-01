@@ -20,7 +20,7 @@ export default function LoadingScreen({ type = 'daily' }) {
         { main: '월간 운세 생성 중', sub: '이번 달 운세를 꼼꼼히 분석하고 있어요 📅', progress: 70 },
         { main: '최종 점검 중', sub: '곧 만나실 수 있어요! 🎉', progress: 95 }
       ],
-      title: '월간 운세'
+      title: `${new Date().getFullYear()}년 ${new Date().getMonth() + 1}월 이달의 운세`
     },
     lifetime: {
       phases: [
