@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function LoadingScreen({ type = 'daily' }) {
+export default function LoadingScreen({ type = 'daily', birthInfo = null }) {
   const [currentPhase, setCurrentPhase] = useState(0);
   const [currentEmoji, setCurrentEmoji] = useState(0);
 
@@ -28,7 +28,7 @@ export default function LoadingScreen({ type = 'daily' }) {
         { main: '평생 대운 분석 중', sub: '10년 단위 운세를 분석하고 있어요 🔮', progress: 70 },
         { main: '최종 점검 중', sub: '곧 만나실 수 있어요! 🎉', progress: 95 }
       ],
-      title: '평생 사주'
+      title: birthInfo ? `${birthInfo.year}년 ${birthInfo.month}월 ${birthInfo.day}일` : '평생 사주'
     },
     newyear: {
       phases: [

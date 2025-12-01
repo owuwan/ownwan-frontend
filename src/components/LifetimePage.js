@@ -2,26 +2,76 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, Star, Check, ChevronRight, ArrowLeft, CreditCard, Smartphone, Infinity, Zap, Wallet } from 'lucide-react';
 import Footer from './Footer';
+import LoadingScreen from './LoadingScreen';
 
 export default function AlldayLifetimePaymentPage() {
   const navigate = useNavigate();
   const [selectedMethod, setSelectedMethod] = useState('card');
   const [agreed, setAgreed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [birthInfo, setBirthInfo] = useState(null);
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (!agreed) {
       alert('서비스 이용약관에 동의해주세요!');
       return;
     }
-    // 임시: 평생사주 결과 페이지로 이동
-    navigate('/lifetime-result', { 
-      state: { 
-        sajuData: {
-          name: "홍길동",
-          saju: { year: "경오", month: "정묘", day: "병자", hour: "무신" }
+    
+    // 로그인 체크
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+    
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://ownwan-backend.onrender.com';
+      
+      // 프로필 정보 가져오기
+      const profileRes = await fetch(`${backendUrl}/api/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
+      });
+      
+      const profileData = await profileRes.json();
+      
+      if (!profileData.success || !profileData.birth) {
+        alert('생년월일 정보가 필요합니다. 마이페이지에서 입력해주세요.');
+        navigate('/mypage');
+        return;
       }
-    });
+      
+      const birth = profileData.birth;
+      setBirthInfo({
+        year: birth.year,
+        month: birth.month,
+        day: birth.day
+      });
+      
+      setIsLoading(true);
+      
+      // TODO: 평생사주 API 연동 (현재는 더미데이터)
+      // 로딩 효과를 위해 잠시 대기
+      setTimeout(() => {
+        navigate('/lifetime-result', { 
+          state: { 
+            sajuData: {
+              name: profileData.name || '사용자',
+              birth_date: `${birth.year}.${birth.month}.${birth.day}`,
+              gender: profileData.gender || '남자',
+              saju: { year: "경오", month: "정묘", day: "병자", hour: "무신" }
+            }
+          }
+        });
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert('오류가 발생했습니다: ' + error.message);
+      setIsLoading(false);
+    }
   };
 
   const handleBack = () => {
@@ -35,6 +85,11 @@ export default function AlldayLifetimePaymentPage() {
     { id: 'toss', icon: Zap, label: '토스페이', description: '간편 결제' },
     { id: 'phone', icon: Smartphone, label: '휴대폰 소액결제', description: '통신사 결제' }
   ];
+
+  // 로딩 중이면 로딩 화면 표시
+  if (isLoading) {
+    return <LoadingScreen type="lifetime" birthInfo={birthInfo} />;
+  }
 
   return (
     <div className="min-h-screen relative overflow-hidden" style={{
