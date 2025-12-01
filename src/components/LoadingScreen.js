@@ -12,7 +12,7 @@ export default function LoadingScreen({ type = 'daily' }) {
         { main: '14가지 운세 생성 중', sub: '꼼꼼히 당신만의 운세를 작성하고 있어요 ✍️', progress: 70 },
         { main: '최종 점검 중', sub: '곧 만나실 수 있어요! 🎉', progress: 95 }
       ],
-      title: '오늘의 운세'
+      title: `${new Date().getFullYear()}년 ${new Date().getMonth() + 1}월 ${new Date().getDate()}일 오늘의 운세`
     },
     monthly: {
       phases: [
