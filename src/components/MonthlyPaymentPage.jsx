@@ -2,22 +2,93 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, Star, Check, ChevronRight, ArrowLeft, CreditCard, Smartphone, Wallet, Zap } from 'lucide-react';
 import Footer from './Footer';
+import LoadingScreen from './LoadingScreen';
 
 export default function MonthlyPaymentPage() {
   const navigate = useNavigate();
   const [selectedMethod, setSelectedMethod] = useState('card');
   const [agreed, setAgreed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleBack = () => {
     navigate(-1);
   };
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (!agreed) {
       alert('서비스 이용약관에 동의해주세요!');
       return;
     }
-    alert('✅ 결제가 완료되었습니다!\n\n이번 달 월간운세를 확인하실 수 있습니다.\n마이페이지에서 언제든 다시 볼 수 있습니다.\n\n💡 실제로는 토스페이먼츠로 결제됩니다.');
+    
+    // 로그인 체크
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+    
+    // 사용자 생년월일 정보 가져오기
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://ownwan-backend.onrender.com';
+      
+      const profileRes = await fetch(`${backendUrl}/api/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      const profileData = await profileRes.json();
+      
+      if (!profileData.success || !profileData.birth) {
+        alert('생년월일 정보가 필요합니다. 마이페이지에서 입력해주세요.');
+        navigate('/mypage');
+        return;
+      }
+      
+      // TODO: 실제 결제 연동 (토스페이먼츠)
+      // 지금은 테스트용으로 바로 API 호출
+      
+      const birth = profileData.birth;
+      const now = new Date();
+      const requestData = {
+        name: profileData.name || '사용자',
+        birthYear: birth.year,
+        birthMonth: birth.month,
+        birthDay: birth.day,
+        birthHour: birth.hour || 12,
+        gender: profileData.gender || '남자',
+        isLunar: birth.is_lunar || false,
+        targetYear: now.getFullYear(),
+        targetMonth: now.getMonth() + 1
+      };
+      
+      setIsLoading(true);
+      // 월간사주 API 호출
+      const fortuneRes = await fetch(`${backendUrl}/api/monthly-saju`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(requestData)
+      });
+      
+      const fortuneData = await fortuneRes.json();
+      
+      if (fortuneData.success) {
+        // 결과 페이지로 이동
+        navigate('/monthly-result', { state: { resultData: fortuneData } });
+      } else {
+        alert('운세 생성에 실패했습니다: ' + (fortuneData.error || '알 수 없는 오류'));
+        setIsLoading(false);
+      }
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert('오류가 발생했습니다: ' + error.message);
+      setIsLoading(false);
+    }
   };
 
   const paymentMethods = [
@@ -27,6 +98,11 @@ export default function MonthlyPaymentPage() {
     { id: 'toss', icon: Zap, label: '토스페이', description: '간편 결제' },
     { id: 'phone', icon: Smartphone, label: '휴대폰 소액결제', description: '통신사 자동결제' }
   ];
+
+  // 로딩 중이면 로딩 화면 표시
+  if (isLoading) {
+    return <LoadingScreen message="월간운세를 생성하고 있습니다..." />;
+  }
 
   return (
     <div className="min-h-screen relative overflow-hidden" style={{
