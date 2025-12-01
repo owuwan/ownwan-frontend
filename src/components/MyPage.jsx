@@ -478,13 +478,13 @@ export default function MyPage() {
           </div>
 
           {/* 메인 구슬 컨테이너 */}
-          <div className="relative mx-auto" style={{ width: '300px', height: '300px' }}>
+          <div className="relative mx-auto" style={{ width: '260px', height: '260px' }}>
             
             {/* 외곽 회전 링 */}
             <div
               style={{
                 position: 'absolute',
-                inset: '-10px',
+                inset: '0px',
                 border: '2px dashed rgba(139,92,246,0.3)',
                 borderRadius: '50%',
                 animation: 'rotate 25s linear infinite'
@@ -534,13 +534,13 @@ export default function MyPage() {
               </defs>
               {orbData.map((orb, i) => {
                 const angle = (orb.angle * Math.PI) / 180;
-                const x2 = 150 + Math.cos(angle) * 85;
-                const y2 = 150 + Math.sin(angle) * 85;
+                const x2 = 130 + Math.cos(angle) * 75;
+                const y2 = 130 + Math.sin(angle) * 75;
                 return (
                   <line
                     key={i}
-                    x1="150"
-                    y1="150"
+                    x1="130"
+                    y1="130"
                     x2={x2}
                     y2={y2}
                     stroke={purchaseStatus[orb.key] ? "url(#beamGradientLight)" : "rgba(200,200,210,0.4)"}
@@ -559,8 +559,8 @@ export default function MyPage() {
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
-                width: '100px',
-                height: '100px',
+                width: '85px',
+                height: '85px',
                 borderRadius: '50%',
                 background: `conic-gradient(
                   from 0deg,
@@ -581,8 +581,8 @@ export default function MyPage() {
             >
               <div
                 style={{
-                  width: '68px',
-                  height: '68px',
+                  width: '58px',
+                  height: '58px',
                   borderRadius: '50%',
                   background: 'linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%)',
                   display: 'flex',
@@ -593,7 +593,7 @@ export default function MyPage() {
                   boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.05)'
                 }}
               >
-                <span style={{ fontSize: '24px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}>☯️</span>
+                <span style={{ fontSize: '20px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}>☯️</span>
                 <span
                   style={{
                     fontSize: '10px',
@@ -612,8 +612,8 @@ export default function MyPage() {
             {/* 4개의 구슬 */}
             {orbData.map((orb, i) => {
               const angle = (orb.angle * Math.PI) / 180;
-              const x = 150 + Math.cos(angle) * 110 - 35;
-              const y = 150 + Math.sin(angle) * 110 - 35;
+              const x = 130 + Math.cos(angle) * 95 - 30;
+              const y = 130 + Math.sin(angle) * 95 - 30;
               const isActive = purchaseStatus[orb.key];
               const isHovered = hoveredOrb === orb.key;
 
@@ -627,8 +627,8 @@ export default function MyPage() {
                     position: 'absolute',
                     left: `${x}px`,
                     top: `${y}px`,
-                    width: '70px',
-                    height: '70px',
+                    width: '60px',
+                    height: '60px',
                     borderRadius: '50%',
                     background: isActive
                       ? `linear-gradient(135deg, ${orb.lightColor} 0%, white 50%, ${orb.lightColor} 100%)`
@@ -649,7 +649,7 @@ export default function MyPage() {
                 >
                   <span
                     style={{
-                      fontSize: '24px',
+                      fontSize: '20px',
                       filter: isActive ? `drop-shadow(0 2px 8px ${orb.color}80)` : 'grayscale(100%) opacity(0.4)',
                       transition: 'all 0.3s ease'
                     }}
@@ -658,7 +658,7 @@ export default function MyPage() {
                   </span>
                   <span
                     style={{
-                      fontSize: '9px',
+                      fontSize: '8px',
                       fontWeight: 'bold',
                       color: isActive ? orb.color : '#9ca3af',
                       marginTop: '2px'
@@ -672,16 +672,16 @@ export default function MyPage() {
                     <div
                       style={{
                         position: 'absolute',
-                        top: '-4px',
-                        right: '-4px',
-                        width: '22px',
-                        height: '22px',
+                        top: '-3px',
+                        right: '-3px',
+                        width: '18px',
+                        height: '18px',
                         borderRadius: '50%',
                         background: `linear-gradient(135deg, ${orb.color}, ${orb.color}cc)`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '11px',
+                        fontSize: '10px',
                         fontWeight: 'bold',
                         color: '#fff',
                         boxShadow: `0 2px 10px ${orb.color}80`,
