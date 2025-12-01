@@ -22,12 +22,15 @@ export default function MyPage() {
   const [isEditing, setIsEditing] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
 
-  // 🔥 성공 모달 상태
+  // 모달 상태
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  // 🔥 고객센터 모달 상태
   const [activeModal, setActiveModal] = useState(null);
 
-  // 🔥 결제 상태 (나의 사주 컬렉션)
+  // 구슬 UI 상태
+  const [hoveredOrb, setHoveredOrb] = useState(null);
+  const [particles, setParticles] = useState([]);
+
+  // 결제 상태
   const [purchaseStatus, setPurchaseStatus] = useState({
     daily: false,
     monthly: false,
@@ -35,18 +38,36 @@ export default function MyPage() {
     lifetime: false
   });
 
-  // 활성화된 구슬 개수 계산
   const activeCount = Object.values(purchaseStatus).filter(v => v).length;
+
+  const orbData = [
+    { key: 'daily', name: '일일사주', icon: '☀️', color: '#3b82f6', lightColor: '#dbeafe', angle: -135, desc: '매일 새로운 운세' },
+    { key: 'lifetime', name: '평생사주', icon: '⭐', color: '#f59e0b', lightColor: '#fef3c7', angle: -45, desc: '평생의 운명을 알다' },
+    { key: 'monthly', name: '월간사주', icon: '🌙', color: '#10b981', lightColor: '#d1fae5', angle: 135, desc: '이번 달 행운의 흐름' },
+    { key: 'newyear', name: '신년운세', icon: '🎆', color: '#ef4444', lightColor: '#fee2e2', angle: 45, desc: '2025년 대운을 확인' }
+  ];
+
+  // 파티클 생성
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (activeCount > 0) {
+        setParticles(prev => [...prev.slice(-20), {
+          id: Date.now(),
+          x: Math.random() * 100,
+          y: Math.random() * 100,
+          size: Math.random() * 3 + 2,
+          duration: Math.random() * 3 + 2
+        }]);
+      }
+    }, 300);
+    return () => clearInterval(interval);
+  }, [activeCount]);
 
   // 페이지 로드 시 기존 정보 불러오기
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        // 🔥 동적 백엔드 URL!
-        const backendUrl = window.location.hostname === 'localhost'
-          ? 'https://ownwan-backend.onrender.com'
-          : `https://ownwan-backend.onrender.com`;
-
+        const backendUrl = 'https://ownwan-backend.onrender.com';
         const token = localStorage.getItem('access_token');
         const response = await fetch(`${backendUrl}/api/profile`, {
           credentials: 'include',
@@ -86,14 +107,11 @@ export default function MyPage() {
     fetchUserInfo();
   }, []);
 
-  // 🔥 결제 상태 불러오기 (TODO: 백엔드 API 연동 후 활성화)
+  // 결제 상태 불러오기
   useEffect(() => {
     const fetchPurchaseStatus = async () => {
       try {
-        const backendUrl = window.location.hostname === 'localhost'
-          ? 'https://ownwan-backend.onrender.com'
-          : `https://ownwan-backend.onrender.com`;
-
+        const backendUrl = 'https://ownwan-backend.onrender.com';
         const token = localStorage.getItem('access_token');
         const response = await fetch(`${backendUrl}/api/purchase-status`, {
           credentials: 'include',
@@ -108,22 +126,16 @@ export default function MyPage() {
         }
       } catch (error) {
         console.error('❌ 결제 상태 불러오기 실패:', error);
-        // 실패해도 기본값 유지
       }
     };
 
     fetchPurchaseStatus();
   }, []);
 
-  // 🚪 로그아웃 핸들러
+  // 로그아웃 핸들러
   const handleLogout = async () => {
     try {
-      // 🔥 동적 백엔드 URL!
-      const backendUrl = window.location.hostname === 'localhost'
-        ? 'https://ownwan-backend.onrender.com'
-        : `https://ownwan-backend.onrender.com`;
-
-      // 🔥 백엔드 로그아웃 API 호출!
+      const backendUrl = 'https://ownwan-backend.onrender.com';
       const token = localStorage.getItem('access_token');
       const response = await fetch(`${backendUrl}/api/logout`, {
         method: 'POST',
@@ -135,30 +147,28 @@ export default function MyPage() {
 
       if (response.ok) {
         console.log('✅ 로그아웃 성공!');
-        localStorage.removeItem('access_token');  // localStorage도 정리
+        localStorage.removeItem('access_token');
         navigate('/login');
       } else {
         console.error('❌ 로그아웃 실패');
-        // 실패해도 일단 로그인 페이지로
-        localStorage.removeItem('token');
+        localStorage.removeItem('access_token');
         navigate('/login');
       }
     } catch (error) {
       console.error('❌ 로그아웃 에러:', error);
-      // 에러 나도 일단 로그인 페이지로
-      localStorage.removeItem('token');
+      localStorage.removeItem('access_token');
       navigate('/login');
     }
   };
 
-  // 🔥 수정하기 버튼 핸들러 (수정!)
+  // 수정하기 버튼 핸들러
   const handleEdit = (e) => {
-    e.preventDefault(); // 🔥 form submit 방지!
+    e.preventDefault();
     setIsEditing(true);
     setError('');
   };
 
-  // 🔥 구슬 클릭 핸들러
+  // 구슬 클릭 핸들러
   const handleOrbClick = (type) => {
     if (purchaseStatus[type]) {
       // 결제 완료 → 결과 페이지로 이동
@@ -231,14 +241,10 @@ export default function MyPage() {
     setIsSubmitting(true);
 
     try {
-
       const phoneNumber = `${phone1}-${phone2}-${phone3}`;
-
-      const backendUrl = window.location.hostname === 'localhost'
-        ? 'https://ownwan-backend.onrender.com'
-        : `https://ownwan-backend.onrender.com`;
-
+      const backendUrl = 'https://ownwan-backend.onrender.com';
       const token = localStorage.getItem('access_token');
+      
       const response = await fetch(`${backendUrl}/api/profile/update-birth-info`, {
         method: 'POST',
         headers: {
@@ -264,11 +270,9 @@ export default function MyPage() {
       }
 
       console.log('✅ 생년월일 정보 저장 성공!');
-
-      // 🔥 저장 성공 시
       setIsEditing(false);
       setIsSaved(true);
-      setShowSuccessModal(true); // 🔥 커스텀 모달 표시
+      setShowSuccessModal(true);
 
     } catch (error) {
       console.error('❌ 생년월일 정보 저장 에러:', error);
@@ -278,121 +282,45 @@ export default function MyPage() {
     }
   };
 
-  // 🔥 구슬 컴포넌트
-  const Orb = ({ name, emoji, color, active, style, onClick, delay = 0 }) => (
-    <div
-      onClick={onClick}
-      className="absolute cursor-pointer transition-all duration-300"
-      style={{
-        ...style,
-        width: '75px',
-        height: '75px',
-        borderRadius: '50%',
-        background: active 
-          ? `linear-gradient(135deg, ${color}dd 0%, ${color} 50%, ${color}bb 100%)`
-          : 'linear-gradient(135deg, #e0e0e0 0%, #c0c0c0 100%)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: active 
-          ? `0 4px 20px ${color}60, 0 0 30px ${color}30, inset 0 2px 10px rgba(255,255,255,0.4)`
-          : '0 4px 15px rgba(0,0,0,0.1), inset 0 2px 10px rgba(255,255,255,0.5)',
-        border: active ? `3px solid ${color}` : '3px solid #d0d0d0',
-        animation: active ? `float 3s ease-in-out infinite` : 'none',
-        animationDelay: `${delay}s`
-      }}
-    >
-      <div style={{ 
-        fontSize: '26px', 
-        marginBottom: '2px',
-        filter: active ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'grayscale(100%) opacity(0.4)'
-      }}>
-        {emoji}
-      </div>
-      <div style={{ 
-        fontSize: '10px', 
-        color: active ? '#fff' : '#999',
-        fontWeight: 'bold',
-        textShadow: active ? '0 1px 2px rgba(0,0,0,0.3)' : 'none'
-      }}>
-        {name}
-      </div>
-      {active && (
-        <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-xs font-bold shadow-lg border-2 border-white">
-          ✓
-        </div>
-      )}
-    </div>
-  );
-
   return (
     <div
-      className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#f5f7fa] via-[#e8eaf0] to-[#f0f2f8] pb-20"
-      style={{ fontFamily: 'Nanum Gothic, sans-serif' }}
+      className="min-h-screen relative overflow-hidden pb-20"
+      style={{
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #e8eaf0 50%, #f0f2f8 100%)',
+        fontFamily: 'Nanum Gothic, sans-serif'
+      }}
     >
-      {/* 🔥 구슬 애니메이션 CSS */}
+      {/* 🔥 애니메이션 CSS */}
       <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
+        @keyframes breathe {
+          0%, 100% { transform: scale(1); opacity: 0.25; }
+          50% { transform: scale(1.1); opacity: 0.35; }
+        }
+        @keyframes rotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes rotateReverse {
+          from { transform: rotate(360deg); }
+          to { transform: rotate(0deg); }
+        }
+        @keyframes rotateGlow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
         @keyframes pulse {
-          0%, 100% { transform: translateX(-50%) scale(1); }
-          50% { transform: translateX(-50%) scale(1.03); }
+          0%, 100% { transform: translate(-50%, -50%) scale(1); }
+          50% { transform: translate(-50%, -50%) scale(1.03); }
+        }
+        @keyframes orbFloat {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-6px) scale(1.02); }
+        }
+        @keyframes floatUp {
+          0% { opacity: 0.6; transform: translateY(0) scale(1); }
+          100% { opacity: 0; transform: translateY(-80px) scale(0); }
         }
       `}</style>
-
-      {/* 🔥 성공 모달 */}
-      {showSuccessModal && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-          onClick={() => setShowSuccessModal(false)}
-        >
-          {/* 배경 오버레이 */}
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-
-          {/* 모달 박스 */}
-          <div
-            className="relative bg-gradient-to-br from-[#f5f7fa] via-[#e8eaf0] to-[#f0f2f8] rounded-2xl border-4 border-gray-900 shadow-2xl max-w-sm w-full p-8"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* 육각형 패턴 배경 */}
-            <div
-              className="absolute inset-0 opacity-[0.03] rounded-2xl"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E")`,
-                backgroundSize: '60px 60px'
-              }}
-            />
-
-            <div className="relative z-10">
-              {/* 아이콘 */}
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-gray-900 rounded-full flex items-center justify-center">
-                  <span className="text-3xl">✅</span>
-                </div>
-              </div>
-
-              {/* 메시지 */}
-              <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
-                저장 완료!
-              </h3>
-              <p className="text-gray-700 text-center mb-6">
-                정보가 성공적으로 저장되었습니다.
-              </p>
-
-              {/* 확인 버튼 */}
-              <button
-                onClick={() => setShowSuccessModal(false)}
-                className="w-full py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-all border-2 border-gray-900 shadow-lg"
-              >
-                확인
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 육각형 패턴 배경 */}
       <div
@@ -404,8 +332,96 @@ export default function MyPage() {
       />
 
       {/* 빛 효과 */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000" />
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: '25%',
+          width: '384px',
+          height: '384px',
+          background: '#c4b5fd',
+          borderRadius: '50%',
+          mixBlendMode: 'multiply',
+          filter: 'blur(60px)',
+          opacity: 0.25,
+          animation: 'breathe 4s ease-in-out infinite'
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '10%',
+          right: '20%',
+          width: '300px',
+          height: '300px',
+          background: '#93c5fd',
+          borderRadius: '50%',
+          mixBlendMode: 'multiply',
+          filter: 'blur(60px)',
+          opacity: 0.2,
+          animation: 'breathe 5s ease-in-out infinite reverse'
+        }}
+      />
+
+      {/* 플로팅 파티클 */}
+      {particles.map(p => (
+        <div
+          key={p.id}
+          style={{
+            position: 'absolute',
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: `${p.size}px`,
+            height: `${p.size}px`,
+            background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+            borderRadius: '50%',
+            animation: `floatUp ${p.duration}s ease-out forwards`,
+            pointerEvents: 'none',
+            opacity: 0.6
+          }}
+        />
+      ))}
+
+      {/* 성공 모달 */}
+      {showSuccessModal && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          onClick={() => setShowSuccessModal(false)}
+        >
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div
+            className="relative bg-gradient-to-br from-[#f5f7fa] via-[#e8eaf0] to-[#f0f2f8] rounded-2xl border-4 border-gray-900 shadow-2xl max-w-sm w-full p-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              className="absolute inset-0 opacity-[0.03] rounded-2xl"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E")`,
+                backgroundSize: '60px 60px'
+              }}
+            />
+            <div className="relative z-10">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-gray-900 rounded-full flex items-center justify-center">
+                  <span className="text-3xl">✅</span>
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
+                저장 완료!
+              </h3>
+              <p className="text-gray-700 text-center mb-6">
+                정보가 성공적으로 저장되었습니다.
+              </p>
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-all border-2 border-gray-900 shadow-lg"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="relative z-10 container mx-auto px-4 py-6 max-w-2xl">
         {/* 헤더 */}
@@ -415,172 +431,330 @@ export default function MyPage() {
             <h1 className="text-lg font-bold text-gray-900">마이페이지</h1>
           </div>
           <p className="text-gray-600 text-xs">
-            정확한 사주 분석을 위해<br></br>생년월일과 출생 시간을 입력해주세요
+            정확한 사주 분석을 위해<br />생년월일과 출생 시간을 입력해주세요
           </p>
         </div>
 
-        {/* 🔥 나의 사주 컬렉션 - 구슬 UI */}
-        <div className="bg-white rounded-2xl p-5 shadow-xl border-2 border-gray-900 mb-4">
-          <div className="text-center mb-4">
+        {/* 🔮 나의 사주 컬렉션 - 게임 스타일 */}
+        <div className="bg-white rounded-2xl p-5 shadow-xl border-2 border-gray-900 mb-4 relative overflow-hidden">
+          
+          {/* 카드 내부 글로우 효과 */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '-50%',
+              left: '-50%',
+              width: '200%',
+              height: '200%',
+              background: 'radial-gradient(circle at center, rgba(139,92,246,0.05) 0%, transparent 50%)',
+              animation: 'rotateGlow 10s linear infinite',
+              pointerEvents: 'none'
+            }}
+          />
+
+          <div className="text-center mb-5 relative z-10">
             <h2 className="text-sm font-bold text-gray-900 flex items-center justify-center gap-1 mb-1">
-              <span>🔮</span> 나의 사주 컬렉션
+              <span
+                style={{
+                  background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}
+              >
+                ✧
+              </span>
+              나의 사주 컬렉션
+              <span
+                style={{
+                  background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}
+              >
+                ✧
+              </span>
             </h2>
-            <p className="text-gray-400 text-xs">구슬을 터치하여 운세를 확인하세요</p>
+            <p className="text-gray-400 text-xs">운명의 구슬을 수집하세요</p>
           </div>
 
-          {/* 구슬 컨테이너 */}
-          <div className="relative mx-auto" style={{ width: '280px', height: '340px' }}>
+          {/* 메인 구슬 컨테이너 */}
+          <div className="relative mx-auto" style={{ width: '300px', height: '300px' }}>
             
+            {/* 외곽 회전 링 */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: '-10px',
+                border: '2px dashed rgba(139,92,246,0.3)',
+                borderRadius: '50%',
+                animation: 'rotate 25s linear infinite'
+              }}
+            />
+
+            {/* 내부 회전 링 */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: '25px',
+                border: '1px dashed rgba(59,130,246,0.2)',
+                borderRadius: '50%',
+                animation: 'rotateReverse 20s linear infinite'
+              }}
+            />
+
             {/* 연결선 SVG */}
             <svg
-              className="absolute top-0 left-0 w-full h-full pointer-events-none"
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                pointerEvents: 'none'
+              }}
             >
               <defs>
-                <linearGradient id="activeLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.6" />
-                  <stop offset="50%" stopColor="#a855f7" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.6" />
+                <linearGradient id="beamGradientLight" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.2">
+                    <animate attributeName="stop-opacity" values="0.2;0.6;0.2" dur="2s" repeatCount="indefinite" />
+                  </stop>
+                  <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.6">
+                    <animate attributeName="stop-opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" />
+                  </stop>
+                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.2">
+                    <animate attributeName="stop-opacity" values="0.2;0.6;0.2" dur="2s" repeatCount="indefinite" />
+                  </stop>
                 </linearGradient>
-                <linearGradient id="inactiveLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#d1d5db" stopOpacity="0.5" />
-                  <stop offset="100%" stopColor="#d1d5db" stopOpacity="0.5" />
-                </linearGradient>
+                <filter id="glowLight">
+                  <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+                  <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
               </defs>
-              
-              {/* 태극 → 일일 */}
-              <line x1="140" y1="70" x2="60" y2="140" 
-                stroke={purchaseStatus.daily ? "url(#activeLineGradient)" : "url(#inactiveLineGradient)"} 
-                strokeWidth="3" 
-                strokeLinecap="round"
-              />
-              {/* 태극 → 평생 */}
-              <line x1="140" y1="70" x2="220" y2="140" 
-                stroke={purchaseStatus.lifetime ? "url(#activeLineGradient)" : "url(#inactiveLineGradient)"} 
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-              {/* 일일 → 월간 */}
-              <line x1="60" y1="180" x2="85" y2="265" 
-                stroke={purchaseStatus.monthly ? "url(#activeLineGradient)" : "url(#inactiveLineGradient)"} 
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-              {/* 평생 → 신년 */}
-              <line x1="220" y1="180" x2="195" y2="265" 
-                stroke={purchaseStatus.newyear ? "url(#activeLineGradient)" : "url(#inactiveLineGradient)"} 
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-              {/* 월간 ↔ 신년 */}
-              <line x1="120" y1="290" x2="160" y2="290" 
-                stroke={purchaseStatus.monthly && purchaseStatus.newyear ? "url(#activeLineGradient)" : "url(#inactiveLineGradient)"} 
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
+              {orbData.map((orb, i) => {
+                const angle = (orb.angle * Math.PI) / 180;
+                const x2 = 150 + Math.cos(angle) * 85;
+                const y2 = 150 + Math.sin(angle) * 85;
+                return (
+                  <line
+                    key={i}
+                    x1="150"
+                    y1="150"
+                    x2={x2}
+                    y2={y2}
+                    stroke={purchaseStatus[orb.key] ? "url(#beamGradientLight)" : "rgba(200,200,210,0.4)"}
+                    strokeWidth={purchaseStatus[orb.key] ? "3" : "2"}
+                    strokeLinecap="round"
+                    filter={purchaseStatus[orb.key] ? "url(#glowLight)" : "none"}
+                  />
+                );
+              })}
             </svg>
 
-            {/* 태극 구슬 (상단 중앙) */}
-            <div 
-              className="absolute"
+            {/* 중앙 코어 */}
+            <div
               style={{
-                top: '0px',
+                position: 'absolute',
+                top: '50%',
                 left: '50%',
-                transform: 'translateX(-50%)',
-                animation: activeCount > 0 ? 'pulse 3s infinite' : 'none'
+                transform: 'translate(-50%, -50%)',
+                width: '100px',
+                height: '100px',
+                borderRadius: '50%',
+                background: `conic-gradient(
+                  from 0deg,
+                  ${purchaseStatus.daily ? '#3b82f6' : '#e5e7eb'} 0deg 90deg,
+                  ${purchaseStatus.lifetime ? '#f59e0b' : '#e5e7eb'} 90deg 180deg,
+                  ${purchaseStatus.newyear ? '#ef4444' : '#e5e7eb'} 180deg 270deg,
+                  ${purchaseStatus.monthly ? '#10b981' : '#e5e7eb'} 270deg 360deg
+                )`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: activeCount > 0
+                  ? '0 4px 30px rgba(139, 92, 246, 0.3), 0 0 50px rgba(59, 130, 246, 0.2)'
+                  : '0 4px 20px rgba(0,0,0,0.1)',
+                border: '3px solid #1f2937',
+                animation: 'pulse 3s ease-in-out infinite'
               }}
             >
               <div
                 style={{
-                  width: '85px',
-                  height: '85px',
+                  width: '68px',
+                  height: '68px',
                   borderRadius: '50%',
-                  background: `conic-gradient(
-                    #8b5cf6 0deg ${activeCount * 90}deg,
-                    #e5e7eb ${activeCount * 90}deg 360deg
-                  )`,
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: activeCount > 0 
-                    ? '0 4px 20px rgba(139, 92, 246, 0.4), inset 0 2px 10px rgba(255,255,255,0.3)'
-                    : '0 4px 15px rgba(0,0,0,0.1), inset 0 2px 10px rgba(255,255,255,0.5)',
-                  border: '3px solid #1f2937'
+                  flexDirection: 'column',
+                  border: '2px solid #e5e7eb',
+                  boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.05)'
                 }}
               >
-                <div
+                <span style={{ fontSize: '24px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}>☯️</span>
+                <span
                   style={{
-                    width: '54px',
-                    height: '54px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #f5f7fa 0%, #e8eaf0 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '28px',
-                    border: '2px solid #d1d5db'
+                    fontSize: '10px',
+                    fontWeight: 'bold',
+                    background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    marginTop: '2px'
                   }}
                 >
-                  ☯️
-                </div>
-              </div>
-              <div className="text-center mt-2 text-xs text-gray-500 font-bold">
-                {activeCount}/4 완성
+                  {activeCount}/4
+                </span>
               </div>
             </div>
 
-            {/* 일일사주 구슬 (왼쪽 위) */}
-            <Orb
-              name="일일사주"
-              emoji="☀️"
-              color="#3b82f6"
-              active={purchaseStatus.daily}
-              style={{ top: '115px', left: '15px' }}
-              delay={0}
-              onClick={() => handleOrbClick('daily')}
-            />
+            {/* 4개의 구슬 */}
+            {orbData.map((orb, i) => {
+              const angle = (orb.angle * Math.PI) / 180;
+              const x = 150 + Math.cos(angle) * 110 - 35;
+              const y = 150 + Math.sin(angle) * 110 - 35;
+              const isActive = purchaseStatus[orb.key];
+              const isHovered = hoveredOrb === orb.key;
 
-            {/* 평생사주 구슬 (오른쪽 위) */}
-            <Orb
-              name="평생사주"
-              emoji="⭐"
-              color="#f59e0b"
-              active={purchaseStatus.lifetime}
-              style={{ top: '115px', right: '15px' }}
-              delay={0.5}
-              onClick={() => handleOrbClick('lifetime')}
-            />
+              return (
+                <div
+                  key={orb.key}
+                  onMouseEnter={() => setHoveredOrb(orb.key)}
+                  onMouseLeave={() => setHoveredOrb(null)}
+                  onClick={() => handleOrbClick(orb.key)}
+                  style={{
+                    position: 'absolute',
+                    left: `${x}px`,
+                    top: `${y}px`,
+                    width: '70px',
+                    height: '70px',
+                    borderRadius: '50%',
+                    background: isActive
+                      ? `linear-gradient(135deg, ${orb.lightColor} 0%, white 50%, ${orb.lightColor} 100%)`
+                      : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transform: isHovered ? 'scale(1.15)' : 'scale(1)',
+                    boxShadow: isActive
+                      ? `0 4px 25px ${orb.color}50, 0 0 40px ${orb.color}20, inset 0 2px 10px rgba(255,255,255,0.8)`
+                      : '0 4px 15px rgba(0,0,0,0.08), inset 0 2px 10px rgba(255,255,255,0.5)',
+                    border: isActive ? `3px solid ${orb.color}` : '3px solid #d1d5db',
+                    animation: isActive ? `orbFloat ${3 + i * 0.3}s ease-in-out infinite` : 'none'
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: '24px',
+                      filter: isActive ? `drop-shadow(0 2px 8px ${orb.color}80)` : 'grayscale(100%) opacity(0.4)',
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    {orb.icon}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '9px',
+                      fontWeight: 'bold',
+                      color: isActive ? orb.color : '#9ca3af',
+                      marginTop: '2px'
+                    }}
+                  >
+                    {orb.name}
+                  </span>
 
-            {/* 월간사주 구슬 (왼쪽 아래) */}
-            <Orb
-              name="월간사주"
-              emoji="🌙"
-              color="#10b981"
-              active={purchaseStatus.monthly}
-              style={{ top: '245px', left: '40px' }}
-              delay={1}
-              onClick={() => handleOrbClick('monthly')}
-            />
+                  {/* 활성화 체크 표시 */}
+                  {isActive && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '-4px',
+                        right: '-4px',
+                        width: '22px',
+                        height: '22px',
+                        borderRadius: '50%',
+                        background: `linear-gradient(135deg, ${orb.color}, ${orb.color}cc)`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        color: '#fff',
+                        boxShadow: `0 2px 10px ${orb.color}80`,
+                        border: '2px solid white'
+                      }}
+                    >
+                      ✓
+                    </div>
+                  )}
 
-            {/* 신년운세 구슬 (오른쪽 아래) */}
-            <Orb
-              name="신년운세"
-              emoji="🎆"
-              color="#ef4444"
-              active={purchaseStatus.newyear}
-              style={{ top: '245px', right: '40px' }}
-              delay={1.5}
-              onClick={() => handleOrbClick('newyear')}
-            />
+                  {/* 호버 툴팁 */}
+                  {isHovered && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: '-40px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        background: '#1f2937',
+                        padding: '6px 12px',
+                        borderRadius: '8px',
+                        whiteSpace: 'nowrap',
+                        fontSize: '10px',
+                        color: '#fff',
+                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                        zIndex: 100
+                      }}
+                    >
+                      {orb.desc}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '-5px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          width: 0,
+                          height: 0,
+                          borderLeft: '5px solid transparent',
+                          borderRight: '5px solid transparent',
+                          borderBottom: '5px solid #1f2937'
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           {/* 범례 */}
-          <div className="flex justify-center gap-5 mt-4 text-xs">
+          <div className="flex justify-center gap-5 mt-6 text-xs relative z-10">
             <div className="flex items-center gap-1.5">
-              <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 shadow-md" />
+              <div
+                style={{
+                  width: '14px',
+                  height: '14px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+                  boxShadow: '0 2px 8px rgba(139,92,246,0.4)'
+                }}
+              />
               <span className="text-gray-500">결제 완료</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-3.5 h-3.5 rounded-full bg-gray-300 border border-gray-400" />
+              <div
+                style={{
+                  width: '14px',
+                  height: '14px',
+                  borderRadius: '50%',
+                  background: '#e5e7eb',
+                  border: '1px solid #d1d5db'
+                }}
+              />
               <span className="text-gray-400">미결제</span>
             </div>
           </div>
@@ -601,8 +775,7 @@ export default function MyPage() {
                   value={birthYear}
                   onChange={(e) => setBirthYear(e.target.value)}
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
-                    }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
                 >
                   <option value="">년</option>
                   {Array.from({ length: 125 }, (_, i) => 2024 - i).map(year => (
@@ -615,8 +788,7 @@ export default function MyPage() {
                   value={birthMonth}
                   onChange={(e) => setBirthMonth(e.target.value)}
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
-                    }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
                 >
                   <option value="">월</option>
                   {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
@@ -629,8 +801,7 @@ export default function MyPage() {
                   value={birthDay}
                   onChange={(e) => setBirthDay(e.target.value)}
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
-                    }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
                 >
                   <option value="">일</option>
                   {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
@@ -653,8 +824,7 @@ export default function MyPage() {
                   value={birthHour}
                   onChange={(e) => setBirthHour(e.target.value)}
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
-                    }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
                 >
                   <option value="">시간대를 선택하세요</option>
                   <option value="0">자시 子時 (23-01시)</option>
@@ -724,8 +894,7 @@ export default function MyPage() {
                   onChange={(e) => setPhone1(e.target.value)}
                   placeholder="010"
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
-                    }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
                   maxLength="3"
                 />
               </div>
@@ -736,8 +905,7 @@ export default function MyPage() {
                   onChange={(e) => setPhone2(e.target.value)}
                   placeholder="1234"
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
-                    }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
                   maxLength="4"
                 />
               </div>
@@ -748,8 +916,7 @@ export default function MyPage() {
                   onChange={(e) => setPhone3(e.target.value)}
                   placeholder="5678"
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'
-                    }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
                   maxLength="4"
                 />
               </div>
@@ -788,7 +955,7 @@ export default function MyPage() {
           {/* 안내 문구 */}
           <div className="mt-3 bg-gray-50 rounded-lg p-3 border border-gray-300">
             <p className="text-gray-600 text-xs text-center">
-              💡 출생 시간을 정확히 모르시나요?<br></br>대략적인 시간대만 선택해도 괜찮아요!
+              💡 출생 시간을 정확히 모르시나요?<br />대략적인 시간대만 선택해도 괜찮아요!
             </p>
           </div>
         </form>
@@ -844,7 +1011,7 @@ export default function MyPage() {
       {activeModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setActiveModal(null)}>
           <div onClick={e => e.stopPropagation()} className="bg-white rounded-2xl w-full max-w-md shadow-xl flex flex-col" style={{ maxHeight: '85vh' }}>
-            
+
             {/* 문의하기 모달 */}
             {activeModal === 'contact' && (
               <>
