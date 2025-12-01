@@ -101,7 +101,7 @@ export default function MonthlyPaymentPage() {
 
   // 로딩 중이면 로딩 화면 표시
   if (isLoading) {
-    return <LoadingScreen message="월간운세를 생성하고 있습니다..." />;
+    return <LoadingScreen type="monthly" />;
   }
 
   return (
