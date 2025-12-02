@@ -48,9 +48,10 @@ export default function AdminDashboard() {
     totalUsers: 1247,
     newUsers: 18,
     churnUsers: 3,
-    activeSubscriptions: 234,
-    monthlyPurchases: 45,
-    lifetimePurchases: 89,
+    dailyPurchases: 0,
+    monthlyPurchases: 0,
+    lifetimePurchases: 0,
+    newyearPurchases: 0,
     gptApiCalls: 2891,
     dailyApiCalls: 2650,
     monthlyApiCalls: 241,
@@ -210,14 +211,15 @@ export default function AdminDashboard() {
                   <Users className="w-6 h-6 text-gray-900" />
                 </div>
                 <span className="text-2xl font-bold text-gray-900">
-                  {todayStats.activeSubscriptions}명
+                  {todayStats.dailyPurchases + todayStats.monthlyPurchases + todayStats.lifetimePurchases + todayStats.newyearPurchases}명
                 </span>
               </div>
               <h3 className="text-gray-700 font-bold mb-2">활성 구독</h3>
               <div className="text-sm text-gray-600 space-y-1">
-                <div>일일사주: {todayStats.activeSubscriptions}명</div>
-                <div className="font-bold">월간구매: {todayStats.monthlyPurchases}건 ⭐</div>
+                <div>일일사주: {todayStats.dailyPurchases}명</div>
+                <div>월간사주: {todayStats.monthlyPurchases}명</div>
                 <div>평생사주: {todayStats.lifetimePurchases}명</div>
+                <div className="font-bold">신년운세: {todayStats.newyearPurchases}명 🎊</div>
               </div>
             </div>
 
