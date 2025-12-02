@@ -136,13 +136,6 @@ export default function PaymentPagePreviewV5() {
           <div className="p-5">
             {/* 가격 섹션 */}
             <div className="text-center mb-5 relative">
-              {/* 코인 장식 */}
-              <div className="absolute -left-2 top-0">
-                <span className="text-2xl" style={{ animation: 'coinSpin 3s linear infinite' }}>🪙</span>
-              </div>
-              <div className="absolute -right-2 top-0">
-                <span className="text-2xl" style={{ animation: 'coinSpin 3s linear infinite', animationDelay: '1.5s' }}>🪙</span>
-              </div>
 
               <div className="inline-block bg-amber-100 text-amber-700 text-xs font-bold px-4 py-1.5 rounded-full mb-3">
                 ☀️ 매일 아침 8시 카톡 발송
