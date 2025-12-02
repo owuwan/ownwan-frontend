@@ -23,7 +23,7 @@ import NewYearResultPage from './components/NewYearResultPage';
 function App() {
   return (
     <Router>
-      <div className="App">
+      <div className="App" style={{ paddingBottom: '60px' }}>
         <Routes>
           <Route path="/" element={<MainPage />} />
           <Route path="/result" element={<ResultPage />} />
@@ -44,6 +44,7 @@ function App() {
           <Route path="/newyear" element={<NewYearPage />} />
           <Route path="/newyear-result" element={<NewYearResultPage />} />
         </Routes>
+        <BottomNav />
       </div>
     </Router>
   );
