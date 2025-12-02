@@ -247,7 +247,7 @@ export default function PaymentPage() {
               </div>
             </div>
 
-            {/* ☯️ 해금되는 나의 운세 ☯️ */}
+            {/* ☯️ 해금되는 나의 운세 ☯️ - 세로 리스트 버전 */}
             <div className="mb-4">
               <div className="flex items-center justify-center gap-2 mb-3">
                 <span className="text-lg">☯️</span>
@@ -255,23 +255,23 @@ export default function PaymentPage() {
                 <span className="text-lg">☯️</span>
               </div>
               
-              <div className="grid grid-cols-4 gap-2">
+              <div className="space-y-2">
                 {[
-                  { icon: '📜', text: '종합' },
-                  { icon: '💕', text: '애정' },
-                  { icon: '💰', text: '금전' },
-                  { icon: '💼', text: '직장' },
-                  { icon: '💪', text: '건강' },
-                  { icon: '🧳', text: '여행' },
-                  { icon: '🎯', text: '행운' },
-                  { icon: '⚠️', text: '리스크' }
+                  { icon: '📜', text: '오늘의 종합 운세' },
+                  { icon: '💕', text: '애정운 & 연애운' },
+                  { icon: '💰', text: '금전운 & 재물운' },
+                  { icon: '💼', text: '직장운 & 사업운' },
+                  { icon: '💪', text: '건강운 & 컨디션' },
+                  { icon: '🧳', text: '여행운 & 이동운' },
+                  { icon: '🎯', text: '오늘의 행운 포인트' },
+                  { icon: '⚠️', text: '주의사항 & 리스크' }
                 ].map((item, idx) => (
                   <div 
                     key={idx} 
-                    className="flex flex-col items-center gap-1 bg-gray-50 border-2 border-gray-200 rounded-xl p-2 hover:border-amber-400 hover:bg-amber-50 transition-all cursor-pointer"
+                    className="flex items-center gap-3 bg-gray-50 border-2 border-gray-200 rounded-xl p-3 hover:border-amber-400 hover:bg-amber-50 transition-all"
                   >
                     <span className="text-xl">{item.icon}</span>
-                    <span className="text-gray-700 text-xs font-bold">{item.text}</span>
+                    <span className="text-gray-700 text-sm font-medium">{item.text}</span>
                   </div>
                 ))}
               </div>
