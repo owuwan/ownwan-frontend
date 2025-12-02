@@ -982,47 +982,6 @@ export default function MainPage() {
 
       </div>
 
-      {/* ===== 하단 네비게이션 ===== */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-50 overflow-hidden">
-        <div className="max-w-md mx-auto flex items-center justify-around py-2">
-          <button 
-            onClick={() => navigate('/payment')}
-            className="flex flex-col items-center gap-1 p-2 text-gray-400"
-          >
-            <span className="text-xl">💌</span>
-            <span className="text-xs font-bold">일일사주</span>
-          </button>
-          <button 
-            onClick={() => navigate('/monthly-payment')}
-            className="flex flex-col items-center gap-1 p-2 text-gray-400"
-          >
-            <span className="text-xl">📅</span>
-            <span className="text-xs font-bold">월간사주</span>
-          </button>
-          <button 
-            onClick={() => navigate('/newyear')}
-            className="flex flex-col items-center gap-1 px-5 py-2 bg-red-500 text-white rounded-2xl shadow-lg"
-          >
-            <span className="text-xl">🎊</span>
-            <span className="text-xs font-bold">신년운세</span>
-          </button>
-          <button 
-            onClick={() => navigate('/lifetime')}
-            className="flex flex-col items-center gap-1 p-2 text-gray-400"
-          >
-            <span className="text-xl">♾️</span>
-            <span className="text-xs font-bold">평생사주</span>
-          </button>
-          <button 
-            onClick={() => navigate('/mypage')}
-            className="flex flex-col items-center gap-1 p-2 text-gray-400"
-          >
-            <span className="text-xl">👤</span>
-            <span className="text-xs font-bold">MY</span>
-          </button>
-        </div>
-      </div>
-
       {/* ===== 모달들 (기능 100% 유지) ===== */}
       
       {/* 🆕 Phase 1F: 생년월일 입력 알림 모달 */}
