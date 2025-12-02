@@ -10,6 +10,7 @@ export default function MyPage() {
   const [birthDay, setBirthDay] = useState('');
   const [birthHour, setBirthHour] = useState('');
   const [gender, setGender] = useState('');
+  const [isLunar, setIsLunar] = useState(false);
   const [phone1, setPhone1] = useState('010');
   const [phone2, setPhone2] = useState('');
   const [phone3, setPhone3] = useState('');
@@ -25,6 +26,7 @@ export default function MyPage() {
   // 모달 상태
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
+  const [showRankModal, setShowRankModal] = useState(false);
 
   // 구슬 UI 상태
   const [hoveredOrb, setHoveredOrb] = useState(null);
@@ -47,15 +49,17 @@ export default function MyPage() {
     { key: 'newyear', name: '신년운세', icon: '🎆', color: '#ef4444', lightColor: '#fee2e2', angle: 45, desc: '2025년 대운을 확인', reward: '2025 신년 특별 운세' }
   ];
 
-  // 등급 시스템
-  const getRankTitle = () => {
-    if (activeCount === 0) return { title: '입문자', emoji: '🌱', color: '#9ca3af', bgColor: '#f3f4f6' };
-    if (activeCount === 1) return { title: '수련생', emoji: '🔮', color: '#3b82f6', bgColor: '#dbeafe' };
-    if (activeCount === 2) return { title: '탐험가', emoji: '⚡', color: '#8b5cf6', bgColor: '#ede9fe' };
-    if (activeCount === 3) return { title: '현자', emoji: '🌟', color: '#f59e0b', bgColor: '#fef3c7' };
-    return { title: '운명의 주인', emoji: '👑', color: '#ef4444', bgColor: '#fee2e2' };
-  };
-  const rank = getRankTitle();
+  // 등급 데이터
+  const rankData = [
+    { count: 0, title: '입문자', emoji: '🌱', color: '#9ca3af', desc: '운명의 여정을 시작하세요' },
+    { count: 1, title: '수련생', emoji: '🔮', color: '#3b82f6', desc: '첫 번째 구슬을 획득했어요' },
+    { count: 2, title: '탐험가', emoji: '⚡', color: '#8b5cf6', desc: '운명을 탐험하는 중이에요' },
+    { count: 3, title: '현자', emoji: '🌟', color: '#f59e0b', desc: '깊은 통찰력을 얻었어요' },
+    { count: 4, title: '운명의 주인', emoji: '👑', color: '#ef4444', desc: '모든 운명을 손에 넣었어요!' }
+  ];
+
+  const getCurrentRank = () => rankData.find(r => r.count === activeCount) || rankData[0];
+  const rank = getCurrentRank();
   const progressPercent = (activeCount / 4) * 100;
 
   // 파티클 생성
@@ -96,6 +100,7 @@ export default function MyPage() {
             setBirthDay(data.birth.day.toString());
             setBirthHour(data.birth.hour.toString());
             setGender(data.gender || '');
+            setIsLunar(data.isLunar || false);
 
             if (data.phone) {
               const phoneParts = data.phone.split('-');
@@ -182,7 +187,6 @@ export default function MyPage() {
   // 구슬 클릭 핸들러
   const handleOrbClick = (type) => {
     if (purchaseStatus[type]) {
-      // 결제 완료 → 결과 페이지로 이동
       const routes = {
         daily: '/daily-result',
         monthly: '/monthly-result',
@@ -191,7 +195,6 @@ export default function MyPage() {
       };
       navigate(routes[type]);
     } else {
-      // 미결제 → 결제 페이지로 이동
       const routes = {
         daily: '/payment',
         monthly: '/monthly-payment',
@@ -207,7 +210,6 @@ export default function MyPage() {
     e.preventDefault();
     setError('');
 
-    // 유효성 검사
     if (!birthYear || !birthMonth || !birthDay) {
       setError('생년월일을 모두 입력해주세요.');
       return;
@@ -270,6 +272,7 @@ export default function MyPage() {
           birth_hour: hour,
           birth_minute: minute,
           gender: gender,
+          isLunar: isLunar,
           phone: phoneNumber
         })
       });
@@ -294,28 +297,22 @@ export default function MyPage() {
   };
 
   return (
-    <div
-      className="min-h-screen relative overflow-hidden pb-20"
-      style={{
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #e8eaf0 50%, #f0f2f8 100%)',
-        fontFamily: 'Nanum Gothic, sans-serif'
-      }}
-    >
-      {/* 🔥 애니메이션 CSS */}
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 overflow-hidden relative pb-8">
+      {/* 커스텀 애니메이션 */}
       <style>{`
-        @keyframes breathe {
-          0%, 100% { transform: scale(1); opacity: 0.25; }
-          50% { transform: scale(1.1); opacity: 0.35; }
+        @keyframes wiggle {
+          0%, 100% { transform: rotate(-3deg); }
+          50% { transform: rotate(3deg); }
+        }
+        @keyframes goldGlow {
+          0%, 100% { box-shadow: 0 0 5px #fbbf24, 0 0 10px #fbbf24, 0 0 15px #f59e0b; }
+          50% { box-shadow: 0 0 10px #fbbf24, 0 0 20px #fbbf24, 0 0 30px #f59e0b; }
+        }
+        @keyframes orbFloat {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-4px) scale(1.02); }
         }
         @keyframes rotate {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes rotateReverse {
-          from { transform: rotate(360deg); }
-          to { transform: rotate(0deg); }
-        }
-        @keyframes rotateGlow {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
@@ -323,60 +320,23 @@ export default function MyPage() {
           0%, 100% { transform: translate(-50%, -50%) scale(1); }
           50% { transform: translate(-50%, -50%) scale(1.03); }
         }
-        @keyframes orbFloat {
-          0%, 100% { transform: translateY(0) scale(1); }
-          50% { transform: translateY(-6px) scale(1.02); }
-        }
         @keyframes floatUp {
           0% { opacity: 0.6; transform: translateY(0) scale(1); }
           100% { opacity: 0; transform: translateY(-80px) scale(0); }
         }
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
       `}</style>
 
       {/* 육각형 패턴 배경 */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E")`,
-          backgroundSize: '60px 60px'
-        }}
-      />
-
-      {/* 빛 효과 */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: '25%',
-          width: '384px',
-          height: '384px',
-          background: '#c4b5fd',
-          borderRadius: '50%',
-          mixBlendMode: 'multiply',
-          filter: 'blur(60px)',
-          opacity: 0.25,
-          animation: 'breathe 4s ease-in-out infinite'
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '10%',
-          right: '20%',
-          width: '300px',
-          height: '300px',
-          background: '#93c5fd',
-          borderRadius: '50%',
-          mixBlendMode: 'multiply',
-          filter: 'blur(60px)',
-          opacity: 0.2,
-          animation: 'breathe 5s ease-in-out infinite reverse'
-        }}
-      />
+      <div className="absolute inset-0 opacity-5 pointer-events-none">
+        <svg width="100%" height="100%">
+          <defs>
+            <pattern id="hex-mypage" width="50" height="43.4" patternUnits="userSpaceOnUse">
+              <polygon points="25,0 50,12.5 50,37.5 25,50 0,37.5 0,12.5" fill="none" stroke="#000" strokeWidth="1"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hex-mypage)"/>
+        </svg>
+      </div>
 
       {/* 플로팅 파티클 */}
       {particles.map(p => (
@@ -397,6 +357,86 @@ export default function MyPage() {
         />
       ))}
 
+      {/* 🏠 플로팅 홈버튼 */}
+      <button
+        onClick={() => navigate('/')}
+        className="fixed bottom-6 left-6 z-50 w-14 h-14 bg-gray-900 rounded-full flex items-center justify-center shadow-2xl border-2 border-gray-700 hover:bg-gray-800 transition-all hover:scale-110"
+      >
+        <span className="text-2xl">🏠</span>
+      </button>
+
+      {/* ===== 등급 시스템 모달 ===== */}
+      {showRankModal && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => setShowRankModal(false)}
+        >
+          <div 
+            className="bg-white rounded-3xl p-6 max-w-sm w-full border-2 border-gray-900 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-center mb-4">
+              <h3 className="text-lg font-black text-gray-900">🏆 등급 시스템</h3>
+              <p className="text-gray-500 text-xs mt-1">구슬을 모아 등급을 올려보세요!</p>
+            </div>
+
+            <div className="space-y-2">
+              {rankData.map((r, idx) => (
+                <div 
+                  key={idx}
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                    r.count === activeCount 
+                      ? 'border-gray-900 bg-gray-50 shadow-md' 
+                      : r.count < activeCount 
+                        ? 'border-gray-200 bg-white opacity-60'
+                        : 'border-gray-200 bg-white'
+                  }`}
+                >
+                  <div 
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
+                    style={{ 
+                      backgroundColor: r.count <= activeCount ? `${r.color}20` : '#f3f4f6',
+                      border: `2px solid ${r.count <= activeCount ? r.color : '#e5e7eb'}`
+                    }}
+                  >
+                    {r.emoji}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span 
+                        className="font-bold text-sm"
+                        style={{ color: r.count <= activeCount ? r.color : '#9ca3af' }}
+                      >
+                        {r.title}
+                      </span>
+                      {r.count === activeCount && (
+                        <span className="bg-amber-400 text-gray-900 text-xs font-black px-2 py-0.5 rounded">현재</span>
+                      )}
+                      {r.count < activeCount && (
+                        <span className="text-green-500 text-xs font-bold">✓ 달성</span>
+                      )}
+                    </div>
+                    <p className="text-gray-500 text-xs">{r.desc}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs font-bold" style={{ color: r.count <= activeCount ? r.color : '#d1d5db' }}>
+                      {r.count}/4
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setShowRankModal(false)}
+              className="w-full mt-4 py-3 bg-gray-900 text-white rounded-xl font-bold text-sm"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 성공 모달 */}
       {showSuccessModal && (
         <div
@@ -405,16 +445,9 @@ export default function MyPage() {
         >
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div
-            className="relative bg-gradient-to-br from-[#f5f7fa] via-[#e8eaf0] to-[#f0f2f8] rounded-2xl border-4 border-gray-900 shadow-2xl max-w-sm w-full p-8"
+            className="relative bg-white rounded-3xl border-2 border-gray-900 shadow-2xl max-w-sm w-full p-8"
             onClick={(e) => e.stopPropagation()}
           >
-            <div
-              className="absolute inset-0 opacity-[0.03] rounded-2xl"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E")`,
-                backgroundSize: '60px 60px'
-              }}
-            />
             <div className="relative z-10">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-gray-900 rounded-full flex items-center justify-center">
@@ -429,7 +462,7 @@ export default function MyPage() {
               </p>
               <button
                 onClick={() => setShowSuccessModal(false)}
-                className="w-full py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-all border-2 border-gray-900 shadow-lg"
+                className="w-full py-3 bg-gray-900 text-white font-bold rounded-xl"
               >
                 확인
               </button>
@@ -438,480 +471,279 @@ export default function MyPage() {
         </div>
       )}
 
-      <div className="relative z-10 container mx-auto px-4 py-6 max-w-2xl">
-        {/* 헤더 */}
-        <div className="text-center mb-4 bg-white rounded-2xl p-4 shadow-xl border-2 border-gray-900">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <span className="text-xl">👤</span>
-            <h1 className="text-lg font-bold text-gray-900">마이페이지</h1>
+      <div className="relative z-10 max-w-md mx-auto p-4 space-y-4">
+        
+        {/* ===== 상단 로고 ===== */}
+        <div className="text-center pt-2">
+          <div 
+            className="inline-block relative"
+            style={{ animation: 'wiggle 2s ease-in-out infinite' }}
+          >
+            <div 
+              className="absolute -inset-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 rounded-2xl"
+              style={{ animation: 'goldGlow 2s ease-in-out infinite' }}
+            ></div>
+            <div className="relative bg-gradient-to-b from-gray-50 to-white rounded-2xl px-5 py-2 border-2 border-gray-900">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">📬</span>
+                <span className="text-gray-900 text-xl font-black">오운완</span>
+                <span className="text-base">✨</span>
+              </div>
+            </div>
           </div>
-          <p className="text-gray-600 text-xs">
-            정확한 사주 분석을 위해<br />생년월일과 출생 시간을 입력해주세요
-          </p>
         </div>
 
-        {/* 🔮 나의 사주 컬렉션 - 게임 스타일 */}
-        <div className="bg-white rounded-2xl p-5 shadow-xl border-2 border-gray-900 mb-4 relative overflow-hidden">
-          
-          {/* 카드 내부 글로우 효과 */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '-50%',
-              left: '-50%',
-              width: '200%',
-              height: '200%',
-              background: 'radial-gradient(circle at center, rgba(139,92,246,0.05) 0%, transparent 50%)',
-              animation: 'rotateGlow 10s linear infinite',
-              pointerEvents: 'none'
-            }}
-          />
+        {/* ===== 마이페이지 헤더 카드 ===== */}
+        <div className="bg-white rounded-3xl overflow-hidden border-2 border-gray-900 shadow-2xl">
+          <div className="bg-gray-900 px-4 py-3 text-center">
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-base">👤</span>
+              <span className="text-white font-black text-lg">마이페이지</span>
+            </div>
+            <p className="text-gray-400 text-xs mt-0.5">MY PAGE</p>
+          </div>
+          <div className="p-4 text-center">
+            <p className="text-gray-600 text-xs">
+              정확한 사주 분석을 위해<br />생년월일과 출생 시간을 입력해주세요
+            </p>
+          </div>
+        </div>
 
-          {/* 등급 + 프로그레스 바 */}
+        {/* ===== 나의 사주 컬렉션 (구슬 UI) ===== */}
+        <div className="bg-white rounded-3xl overflow-hidden border-2 border-gray-900 shadow-2xl">
           <div 
-            className="relative z-10 mb-4 p-3 rounded-xl"
-            style={{
-              background: `linear-gradient(135deg, ${rank.bgColor} 0%, white 100%)`,
-              border: `2px solid ${rank.color}40`
-            }}
+            className="bg-gray-900 px-4 py-3 cursor-pointer hover:bg-gray-800 transition-all"
+            onClick={() => setShowRankModal(true)}
           >
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">{rank.emoji}</span>
                 <div>
-                  <div className="text-[10px] text-gray-500">현재 등급</div>
-                  <div className="text-sm font-bold" style={{ color: rank.color }}>{rank.title}</div>
+                  <div className="text-white font-black text-base">{rank.title}</div>
+                  <div className="text-gray-400 text-xs">👆 등급 보기</div>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-[10px] text-gray-500">수집률</div>
-                <div className="text-xl font-bold" style={{ color: rank.color }}>{activeCount}/4</div>
+              <div className="bg-amber-400 text-gray-900 text-sm font-black px-3 py-1.5 rounded-lg">
+                {activeCount}/4 수집
               </div>
             </div>
             
             {/* 프로그레스 바 */}
-            <div className="bg-gray-200 rounded-full h-2 overflow-hidden">
-              <div 
-                className="h-full rounded-full relative overflow-hidden transition-all duration-500"
-                style={{ 
-                  width: `${progressPercent}%`,
-                  background: `linear-gradient(90deg, ${rank.color}, ${rank.color}aa)`
-                }}
-              >
+            <div className="mt-3">
+              <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
                 <div 
-                  className="absolute inset-0"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
-                    animation: 'shimmer 2s infinite'
-                  }}
+                  className="h-full bg-gradient-to-r from-amber-400 to-amber-300 rounded-full"
+                  style={{ width: `${progressPercent}%` }}
                 />
               </div>
             </div>
-            
-            {activeCount < 4 ? (
-              <div className="text-[10px] text-gray-500 mt-1 flex items-center gap-1">
-                <span>🎯</span> 다음 등급까지 {4 - activeCount}개 남음
-              </div>
-            ) : (
-              <div className="text-[10px] font-bold mt-1 flex items-center gap-1" style={{ color: '#f59e0b' }}>
-                <span>🎉</span> 축하합니다! 모든 구슬을 수집했습니다!
-              </div>
-            )}
           </div>
 
-          <div className="text-center mb-4 relative z-10">
-            <h2 className="text-sm font-bold text-gray-900 flex items-center justify-center gap-1 mb-1">
-              <span
-                style={{
-                  background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}
-              >
-                ✧
-              </span>
-              운명의 구슬
-              <span
-                style={{
-                  background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}
-              >
-                ✧
-              </span>
-            </h2>
-            <p className="text-gray-400 text-[10px]">구슬을 클릭하여 운명을 해금하세요</p>
-          </div>
+          <div className="p-5">
+            <div className="text-center mb-4">
+              <h2 className="text-sm font-black text-gray-900 flex items-center justify-center gap-1">
+                <span className="text-amber-500">✧</span>
+                운명의 구슬
+                <span className="text-amber-500">✧</span>
+              </h2>
+              <p className="text-gray-400 text-xs">구슬을 클릭하여 운명을 해금하세요</p>
+            </div>
 
-          {/* 메인 구슬 컨테이너 */}
-          <div className="relative mx-auto" style={{ width: '260px', height: '260px' }}>
-            
-            {/* 외곽 회전 링 */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: '0px',
-                border: '2px dashed rgba(139,92,246,0.3)',
-                borderRadius: '50%',
-                animation: 'rotate 25s linear infinite'
-              }}
-            />
-
-            {/* 내부 회전 링 */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: '25px',
-                border: '1px dashed rgba(59,130,246,0.2)',
-                borderRadius: '50%',
-                animation: 'rotateReverse 20s linear infinite'
-              }}
-            />
-
-            {/* 연결선 SVG */}
-            <svg
-              style={{
-                position: 'absolute',
-                inset: 0,
-                width: '100%',
-                height: '100%',
-                pointerEvents: 'none'
-              }}
-            >
-              <defs>
-                <linearGradient id="beamGradientLight" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.2">
-                    <animate attributeName="stop-opacity" values="0.2;0.6;0.2" dur="2s" repeatCount="indefinite" />
-                  </stop>
-                  <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.6">
-                    <animate attributeName="stop-opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" />
-                  </stop>
-                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.2">
-                    <animate attributeName="stop-opacity" values="0.2;0.6;0.2" dur="2s" repeatCount="indefinite" />
-                  </stop>
-                </linearGradient>
-                <filter id="glowLight">
-                  <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-                  <feMerge>
-                    <feMergeNode in="coloredBlur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-              </defs>
-              {orbData.map((orb, i) => {
-                const angle = (orb.angle * Math.PI) / 180;
-                const x2 = 130 + Math.cos(angle) * 75;
-                const y2 = 130 + Math.sin(angle) * 75;
-                return (
-                  <line
-                    key={i}
-                    x1="130"
-                    y1="130"
-                    x2={x2}
-                    y2={y2}
-                    stroke={purchaseStatus[orb.key] ? "url(#beamGradientLight)" : "rgba(200,200,210,0.4)"}
-                    strokeWidth={purchaseStatus[orb.key] ? "3" : "2"}
-                    strokeLinecap="round"
-                    filter={purchaseStatus[orb.key] ? "url(#glowLight)" : "none"}
-                  />
-                );
-              })}
-            </svg>
-
-            {/* 중앙 코어 */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '85px',
-                height: '85px',
-                borderRadius: '50%',
-                background: `conic-gradient(
-                  from 0deg,
-                  ${purchaseStatus.daily ? '#3b82f6' : '#e5e7eb'} 0deg 90deg,
-                  ${purchaseStatus.lifetime ? '#f59e0b' : '#e5e7eb'} 90deg 180deg,
-                  ${purchaseStatus.newyear ? '#ef4444' : '#e5e7eb'} 180deg 270deg,
-                  ${purchaseStatus.monthly ? '#10b981' : '#e5e7eb'} 270deg 360deg
-                )`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: activeCount > 0
-                  ? '0 4px 30px rgba(139, 92, 246, 0.3), 0 0 50px rgba(59, 130, 246, 0.2)'
-                  : '0 4px 20px rgba(0,0,0,0.1)',
-                border: '3px solid #1f2937',
-                animation: 'pulse 3s ease-in-out infinite'
-              }}
-            >
+            {/* 구슬 UI */}
+            <div className="relative mx-auto" style={{ width: '220px', height: '220px' }}>
+              
+              {/* 외곽 회전 링 */}
               <div
                 style={{
-                  width: '58px',
-                  height: '58px',
+                  position: 'absolute',
+                  inset: '0px',
+                  border: '2px dashed rgba(139,92,246,0.3)',
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%)',
+                  animation: 'rotate 25s linear infinite'
+                }}
+              />
+
+              {/* 중앙 코어 - 클릭하면 등급 모달 */}
+              <div
+                onClick={() => setShowRankModal(true)}
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '70px',
+                  height: '70px',
+                  borderRadius: '50%',
+                  background: `conic-gradient(
+                    from 0deg,
+                    ${purchaseStatus.daily ? '#3b82f6' : '#e5e7eb'} 0deg 90deg,
+                    ${purchaseStatus.lifetime ? '#f59e0b' : '#e5e7eb'} 90deg 180deg,
+                    ${purchaseStatus.newyear ? '#ef4444' : '#e5e7eb'} 180deg 270deg,
+                    ${purchaseStatus.monthly ? '#10b981' : '#e5e7eb'} 270deg 360deg
+                  )`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  flexDirection: 'column',
-                  border: '2px solid #e5e7eb',
-                  boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.05)'
+                  border: '3px solid #1f2937',
+                  cursor: 'pointer',
+                  animation: 'pulse 3s ease-in-out infinite'
                 }}
               >
-                <span style={{ fontSize: '20px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}>☯️</span>
-                <span
-                  style={{
-                    fontSize: '10px',
-                    fontWeight: 'bold',
-                    background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    marginTop: '2px'
-                  }}
-                >
-                  {activeCount}/4
-                </span>
-              </div>
-            </div>
-
-            {/* 4개의 구슬 */}
-            {orbData.map((orb, i) => {
-              const angle = (orb.angle * Math.PI) / 180;
-              const x = 130 + Math.cos(angle) * 95 - 30;
-              const y = 130 + Math.sin(angle) * 95 - 30;
-              const isActive = purchaseStatus[orb.key];
-              const isHovered = hoveredOrb === orb.key;
-
-              return (
                 <div
-                  key={orb.key}
-                  onMouseEnter={() => setHoveredOrb(orb.key)}
-                  onMouseLeave={() => setHoveredOrb(null)}
-                  onClick={() => handleOrbClick(orb.key)}
                   style={{
-                    position: 'absolute',
-                    left: `${x}px`,
-                    top: `${y}px`,
-                    width: '60px',
-                    height: '60px',
+                    width: '48px',
+                    height: '48px',
                     borderRadius: '50%',
-                    background: isActive
-                      ? `linear-gradient(135deg, ${orb.lightColor} 0%, white 50%, ${orb.lightColor} 100%)`
-                      : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                    background: 'white',
                     display: 'flex',
-                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    transform: isHovered ? 'scale(1.15)' : 'scale(1)',
-                    boxShadow: isActive
-                      ? `0 4px 25px ${orb.color}50, 0 0 40px ${orb.color}20, inset 0 2px 10px rgba(255,255,255,0.8)`
-                      : '0 4px 15px rgba(0,0,0,0.08), inset 0 2px 10px rgba(255,255,255,0.5)',
-                    border: isActive ? `3px solid ${orb.color}` : '3px solid #d1d5db',
-                    animation: isActive ? `orbFloat ${3 + i * 0.3}s ease-in-out infinite` : 'none'
+                    flexDirection: 'column',
+                    border: '2px solid #e5e7eb'
                   }}
                 >
-                  <span
+                  <span style={{ fontSize: '18px' }}>{rank.emoji}</span>
+                  <span style={{ fontSize: '8px', fontWeight: 'bold', color: rank.color }}>
+                    등급보기
+                  </span>
+                </div>
+              </div>
+
+              {/* 4개의 구슬 */}
+              {orbData.map((orb, i) => {
+                const angle = (orb.angle * Math.PI) / 180;
+                const x = 110 + Math.cos(angle) * 80 - 26;
+                const y = 110 + Math.sin(angle) * 80 - 26;
+                const isActive = purchaseStatus[orb.key];
+
+                return (
+                  <div
+                    key={orb.key}
+                    onMouseEnter={() => setHoveredOrb(orb.key)}
+                    onMouseLeave={() => setHoveredOrb(null)}
+                    onClick={() => handleOrbClick(orb.key)}
                     style={{
-                      fontSize: '20px',
-                      filter: isActive ? `drop-shadow(0 2px 8px ${orb.color}80)` : 'grayscale(100%) opacity(0.4)',
-                      transition: 'all 0.3s ease'
+                      position: 'absolute',
+                      left: `${x}px`,
+                      top: `${y}px`,
+                      width: '52px',
+                      height: '52px',
+                      borderRadius: '50%',
+                      background: isActive
+                        ? `linear-gradient(135deg, ${orb.lightColor} 0%, white 50%, ${orb.lightColor} 100%)`
+                        : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s',
+                      transform: hoveredOrb === orb.key ? 'scale(1.15)' : 'scale(1)',
+                      boxShadow: isActive
+                        ? `0 4px 20px ${orb.color}50`
+                        : '0 4px 15px rgba(0,0,0,0.08)',
+                      border: isActive ? `3px solid ${orb.color}` : '3px solid #d1d5db',
+                      animation: isActive ? `orbFloat ${3 + i * 0.3}s ease-in-out infinite` : 'none'
                     }}
                   >
-                    {isActive ? orb.icon : '🔒'}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: '8px',
+                    <span style={{
+                      fontSize: '18px',
+                      filter: isActive ? 'none' : 'grayscale(100%) opacity(0.4)'
+                    }}>
+                      {isActive ? orb.icon : '🔒'}
+                    </span>
+                    <span style={{
+                      fontSize: '7px',
                       fontWeight: 'bold',
                       color: isActive ? orb.color : '#9ca3af',
-                      marginTop: '2px'
-                    }}
-                  >
-                    {orb.name}
-                  </span>
+                      marginTop: '1px'
+                    }}>
+                      {orb.name}
+                    </span>
 
-                  {/* 활성화 체크 표시 */}
-                  {isActive && (
-                    <div
-                      style={{
+                    {/* 활성화 체크 */}
+                    {isActive && (
+                      <div style={{
                         position: 'absolute',
-                        top: '-3px',
-                        right: '-3px',
-                        width: '18px',
-                        height: '18px',
+                        top: '-2px',
+                        right: '-2px',
+                        width: '16px',
+                        height: '16px',
                         borderRadius: '50%',
-                        background: `linear-gradient(135deg, ${orb.color}, ${orb.color}cc)`,
+                        background: orb.color,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '10px',
-                        fontWeight: 'bold',
+                        fontSize: '9px',
                         color: '#fff',
-                        boxShadow: `0 2px 10px ${orb.color}80`,
                         border: '2px solid white'
-                      }}
-                    >
-                      ✓
-                    </div>
-                  )}
-
-                  {/* 호버 툴팁 */}
-                  {isHovered && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        bottom: '-55px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        background: 'white',
-                        padding: '8px 12px',
-                        borderRadius: '10px',
-                        whiteSpace: 'nowrap',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-                        border: `2px solid ${isActive ? orb.color : '#e5e7eb'}`,
-                        zIndex: 100
-                      }}
-                    >
-                      <div style={{ fontSize: '10px', fontWeight: 'bold', color: isActive ? orb.color : '#9ca3af', marginBottom: '2px' }}>
-                        {isActive ? '✓ 해금됨' : '🔒 잠김'}
+                      }}>
+                        ✓
                       </div>
-                      <div style={{ fontSize: '9px', color: '#6b7280' }}>
-                        {orb.reward}
-                      </div>
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: '-6px',
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          width: 0,
-                          height: 0,
-                          borderLeft: '6px solid transparent',
-                          borderRight: '6px solid transparent',
-                          borderBottom: `6px solid ${isActive ? orb.color : '#e5e7eb'}`
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {/* 호버 툴팁 */}
-                  {isHovered && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        bottom: '-40px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        background: '#1f2937',
-                        padding: '6px 12px',
-                        borderRadius: '8px',
-                        whiteSpace: 'nowrap',
-                        fontSize: '10px',
-                        color: '#fff',
-                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-                        zIndex: 100
-                      }}
-                    >
-                      {orb.desc}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: '-5px',
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          width: 0,
-                          height: 0,
-                          borderLeft: '5px solid transparent',
-                          borderRight: '5px solid transparent',
-                          borderBottom: '5px solid #1f2937'
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* 범례 */}
-          <div className="flex justify-center gap-5 mt-6 text-xs relative z-10">
-            <div className="flex items-center gap-1.5">
-              <div
-                style={{
-                  width: '14px',
-                  height: '14px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
-                  boxShadow: '0 2px 8px rgba(139,92,246,0.4)'
-                }}
-              />
-              <span className="text-gray-500">✓ 해금됨</span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-            <div className="flex items-center gap-1.5">
-              <div
-                style={{
-                  width: '14px',
-                  height: '14px',
-                  borderRadius: '50%',
-                  background: '#e5e7eb',
-                  border: '1px solid #d1d5db',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '8px'
-                }}
-              >🔒</div>
-              <span className="text-gray-400">잠김</span>
+
+            {/* 범례 */}
+            <div className="flex justify-center gap-4 mt-4 text-xs">
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-blue-500"></div>
+                <span className="text-gray-500">✓ 해금됨</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-full bg-gray-300 flex items-center justify-center text-[6px]">🔒</div>
+                <span className="text-gray-400">잠김</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* 입력 폼 */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-5 shadow-xl border-2 border-gray-900 mb-4">
+        {/* ===== 입력 폼 카드 ===== */}
+        <form onSubmit={handleSubmit} className="bg-white rounded-3xl overflow-hidden border-2 border-gray-900 shadow-2xl">
+          <div className="bg-gray-900 px-4 py-3">
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-base">📝</span>
+              <span className="text-white font-black text-base">사주 정보 입력</span>
+            </div>
+          </div>
 
-          {/* 생년월일 */}
-          <div className="mb-5">
-            <label className="block text-gray-900 text-sm font-bold mb-2 flex items-center gap-1">
-              <span className="text-lg">🎂</span>
-              생년월일
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              <div>
+          <div className="p-5 space-y-4">
+            
+            {/* 생년월일 */}
+            <div>
+              <label className="text-gray-900 font-bold text-sm flex items-center gap-2 mb-2">
+                <span className="w-1 h-4 bg-gray-900 rounded"></span>🎂 생년월일
+              </label>
+              <div className="grid grid-cols-3 gap-2">
                 <select
                   value={birthYear}
                   onChange={(e) => setBirthYear(e.target.value)}
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
+                  className={`p-3 border-2 border-gray-200 rounded-xl text-gray-700 text-sm text-center font-bold ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
                 >
                   <option value="">년</option>
                   {Array.from({ length: 125 }, (_, i) => 2024 - i).map(year => (
                     <option key={year} value={year}>{year}년</option>
                   ))}
                 </select>
-              </div>
-              <div>
                 <select
                   value={birthMonth}
                   onChange={(e) => setBirthMonth(e.target.value)}
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
+                  className={`p-3 border-2 border-gray-200 rounded-xl text-gray-700 text-sm text-center font-bold ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
                 >
                   <option value="">월</option>
                   {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
                     <option key={month} value={month}>{month}월</option>
                   ))}
                 </select>
-              </div>
-              <div>
                 <select
                   value={birthDay}
                   onChange={(e) => setBirthDay(e.target.value)}
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
+                  className={`p-3 border-2 border-gray-200 rounded-xl text-gray-700 text-sm text-center font-bold ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
                 >
                   <option value="">일</option>
                   {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
@@ -920,187 +752,187 @@ export default function MyPage() {
                 </select>
               </div>
             </div>
-          </div>
 
-          {/* 출생 시간대 */}
-          <div className="mb-5">
-            <label className="block text-gray-900 text-sm font-bold mb-2 flex items-center gap-1">
-              <span className="text-lg">⏰</span>
-              출생 시간대
-            </label>
-            <div className="grid grid-cols-1 gap-2">
+            {/* 출생 시간대 */}
+            <div>
+              <label className="text-gray-900 font-bold text-sm flex items-center gap-2 mb-2">
+                <span className="w-1 h-4 bg-gray-900 rounded"></span>⏰ 출생 시간대
+              </label>
+              <select
+                value={birthHour}
+                onChange={(e) => setBirthHour(e.target.value)}
+                disabled={!isEditing}
+                className={`w-full p-3 border-2 border-gray-200 rounded-xl text-gray-700 text-sm font-bold ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
+              >
+                <option value="">시간대를 선택하세요</option>
+                <option value="0">자시 子時 (23-01시)</option>
+                <option value="2">축시 丑時 (01-03시)</option>
+                <option value="4">인시 寅時 (03-05시)</option>
+                <option value="6">묘시 卯時 (05-07시)</option>
+                <option value="8">진시 辰時 (07-09시)</option>
+                <option value="10">사시 巳時 (09-11시)</option>
+                <option value="12">오시 午時 (11-13시)</option>
+                <option value="14">미시 未時 (13-15시)</option>
+                <option value="16">신시 申時 (15-17시)</option>
+                <option value="18">유시 酉時 (17-19시)</option>
+                <option value="20">술시 戌時 (19-21시)</option>
+                <option value="22">해시 亥時 (21-23시)</option>
+              </select>
+            </div>
+
+            {/* 성별 & 양력/음력 - 메인페이지 스타일 */}
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <select
-                  value={birthHour}
-                  onChange={(e) => setBirthHour(e.target.value)}
-                  disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
-                >
-                  <option value="">시간대를 선택하세요</option>
-                  <option value="0">자시 子時 (23-01시)</option>
-                  <option value="2">축시 丑時 (01-03시)</option>
-                  <option value="4">인시 寅時 (03-05시)</option>
-                  <option value="6">묘시 卯時 (05-07시)</option>
-                  <option value="8">진시 辰時 (07-09시)</option>
-                  <option value="10">사시 巳時 (09-11시)</option>
-                  <option value="12">오시 午時 (11-13시)</option>
-                  <option value="14">미시 未時 (13-15시)</option>
-                  <option value="16">신시 申時 (15-17시)</option>
-                  <option value="18">유시 酉時 (17-19시)</option>
-                  <option value="20">술시 戌時 (19-21시)</option>
-                  <option value="22">해시 亥時 (21-23시)</option>
-                </select>
+                <label className="text-gray-900 font-bold text-sm flex items-center gap-2 mb-2">
+                  <span className="w-1 h-4 bg-gray-900 rounded"></span>성별
+                </label>
+                <div className="grid grid-cols-2 gap-1">
+                  <button 
+                    type="button"
+                    onClick={() => isEditing && setGender('남자')}
+                    disabled={!isEditing}
+                    className={`p-3 rounded-xl font-bold text-sm ${gender === '남자' ? 'bg-gray-900 text-white' : !isEditing ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-gray-50 text-gray-400 border-2 border-gray-200'}`}
+                  >
+                    남
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => isEditing && setGender('여자')}
+                    disabled={!isEditing}
+                    className={`p-3 rounded-xl font-bold text-sm ${gender === '여자' ? 'bg-gray-900 text-white' : !isEditing ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-gray-50 text-gray-400 border-2 border-gray-200'}`}
+                  >
+                    여
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="text-gray-900 font-bold text-sm flex items-center gap-2 mb-2">
+                  <span className="w-1 h-4 bg-gray-900 rounded"></span>양/음력
+                </label>
+                <div className="grid grid-cols-2 gap-1">
+                  <button 
+                    type="button"
+                    onClick={() => isEditing && setIsLunar(false)}
+                    disabled={!isEditing}
+                    className={`p-3 rounded-xl font-bold text-sm ${!isLunar ? 'bg-gray-900 text-white' : !isEditing ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-gray-50 text-gray-400 border-2 border-gray-200'}`}
+                  >
+                    양력
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => isEditing && setIsLunar(true)}
+                    disabled={!isEditing}
+                    className={`p-3 rounded-xl font-bold text-sm ${isLunar ? 'bg-gray-900 text-white' : !isEditing ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-gray-50 text-gray-400 border-2 border-gray-200'}`}
+                  >
+                    음력
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* 성별 선택 */}
-          <div className="mb-5">
-            <label className="block text-gray-900 text-sm font-bold mb-2 flex items-center gap-1">
-              <span className="text-lg">👤</span>
-              성별
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => isEditing && setGender('남자')}
-                disabled={!isEditing}
-                className={`py-2 px-4 rounded-lg border font-bold text-sm transition-all ${gender === '남자'
-                  ? 'bg-gray-900 text-white border-gray-900 shadow-md'
-                  : !isEditing
-                    ? 'bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed'
-                    : 'bg-gray-50 text-gray-900 border-gray-300 hover:border-gray-900'
-                  }`}
-              >
-                남자
-              </button>
-              <button
-                type="button"
-                onClick={() => isEditing && setGender('여자')}
-                disabled={!isEditing}
-                className={`py-2 px-4 rounded-lg border font-bold text-sm transition-all ${gender === '여자'
-                  ? 'bg-gray-900 text-white border-gray-900 shadow-md'
-                  : !isEditing
-                    ? 'bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed'
-                    : 'bg-gray-50 text-gray-900 border-gray-300 hover:border-gray-900'
-                  }`}
-              >
-                여자
-              </button>
-            </div>
-          </div>
-
-          {/* 휴대폰번호 */}
-          <div className="mb-5">
-            <label className="block text-gray-900 text-sm font-bold mb-2 flex items-center gap-1">
-              <span className="text-lg">📱</span>
-              휴대폰번호
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              <div>
+            {/* 휴대폰번호 */}
+            <div>
+              <label className="text-gray-900 font-bold text-sm flex items-center gap-2 mb-2">
+                <span className="w-1 h-4 bg-gray-900 rounded"></span>📱 휴대폰번호
+              </label>
+              <div className="grid grid-cols-3 gap-2">
                 <input
                   type="text"
                   value={phone1}
                   onChange={(e) => setPhone1(e.target.value)}
-                  placeholder="010"
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
+                  className={`p-3 border-2 border-gray-200 rounded-xl text-gray-700 text-sm text-center font-bold ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
                   maxLength="3"
                 />
-              </div>
-              <div>
                 <input
                   type="number"
                   value={phone2}
                   onChange={(e) => setPhone2(e.target.value)}
                   placeholder="1234"
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
+                  className={`p-3 border-2 border-gray-200 rounded-xl text-gray-700 text-sm text-center font-bold ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
                   maxLength="4"
                 />
-              </div>
-              <div>
                 <input
                   type="number"
                   value={phone3}
                   onChange={(e) => setPhone3(e.target.value)}
                   placeholder="5678"
                   disabled={!isEditing}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-center text-sm font-bold focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
+                  className={`p-3 border-2 border-gray-200 rounded-xl text-gray-700 text-sm text-center font-bold ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'}`}
                   maxLength="4"
                 />
               </div>
             </div>
-          </div>
 
-          {/* 에러 메시지 */}
-          {error && (
-            <div className="mb-4 bg-red-50 border border-red-500 rounded-lg p-3">
-              <p className="text-red-700 text-center font-bold text-xs">{error}</p>
+            {/* 에러 메시지 */}
+            {error && (
+              <div className="bg-red-50 border-2 border-red-500 rounded-xl p-3">
+                <p className="text-red-700 text-center font-bold text-xs">{error}</p>
+              </div>
+            )}
+
+            {/* 버튼 */}
+            {isEditing ? (
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`w-full py-4 rounded-xl font-black text-base text-white ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800'}`}
+              >
+                {isSubmitting ? '저장 중...' : '정보 저장하기'}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleEdit}
+                className="w-full py-4 rounded-xl font-black text-base text-white bg-blue-600 hover:bg-blue-700"
+              >
+                수정하기
+              </button>
+            )}
+
+            {/* 안내 문구 */}
+            <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
+              <p className="text-gray-500 text-xs text-center">
+                💡 출생 시간을 정확히 모르시나요?<br/>대략적인 시간대만 선택해도 괜찮아요!
+              </p>
             </div>
-          )}
-
-          {/* 버튼 */}
-          {isEditing ? (
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`w-full py-2.5 rounded-lg font-bold text-sm text-white transition-all ${isSubmitting
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-gray-800 shadow-md hover:shadow-lg'
-                }`}
-            >
-              {isSubmitting ? '저장 중...' : '정보 저장하기'}
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleEdit}
-              className="w-full py-2.5 rounded-lg font-bold text-sm text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all"
-            >
-              수정하기
-            </button>
-          )}
-
-          {/* 안내 문구 */}
-          <div className="mt-3 bg-gray-50 rounded-lg p-3 border border-gray-300">
-            <p className="text-gray-600 text-xs text-center">
-              💡 출생 시간을 정확히 모르시나요?<br />대략적인 시간대만 선택해도 괜찮아요!
-            </p>
           </div>
         </form>
 
-        {/* 고객센터 섹션 */}
-        <div className="mt-6 bg-white rounded-xl p-5 shadow-md border border-gray-200">
-          <h3 className="text-gray-900 font-bold text-sm mb-4 flex items-center gap-2">
-            <span className="text-lg">📞</span>
-            고객센터
-          </h3>
-          <div className="space-y-3">
-            <button onClick={() => setActiveModal('contact')} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all text-left">
-              <div className="flex items-center gap-3">
-                <span className="text-lg">✉️</span>
+        {/* ===== 고객센터 카드 ===== */}
+        <div className="bg-white rounded-3xl p-4 border-2 border-gray-200 shadow-xl">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-gray-300"></div>
+            <span className="text-gray-900 text-xs font-black">📞 고객센터</span>
+            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-gray-300"></div>
+          </div>
+          
+          <div className="space-y-2">
+            <button onClick={() => setActiveModal('contact')} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100">
+              <div className="flex items-center gap-2">
+                <span>✉️</span>
                 <span className="text-gray-800 font-medium text-sm">문의하기</span>
               </div>
               <span className="text-gray-400">→</span>
             </button>
-            <button onClick={() => setActiveModal('refund')} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all text-left">
-              <div className="flex items-center gap-3">
-                <span className="text-lg">📋</span>
+            <button onClick={() => setActiveModal('refund')} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100">
+              <div className="flex items-center gap-2">
+                <span>📋</span>
                 <span className="text-gray-800 font-medium text-sm">환불정책</span>
               </div>
               <span className="text-gray-400">→</span>
             </button>
-            <button onClick={() => setActiveModal('terms')} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all text-left">
-              <div className="flex items-center gap-3">
-                <span className="text-lg">📄</span>
+            <button onClick={() => setActiveModal('terms')} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100">
+              <div className="flex items-center gap-2">
+                <span>📄</span>
                 <span className="text-gray-800 font-medium text-sm">이용약관</span>
               </div>
               <span className="text-gray-400">→</span>
             </button>
-            <button onClick={() => setActiveModal('privacy')} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all text-left">
-              <div className="flex items-center gap-3">
-                <span className="text-lg">🔒</span>
+            <button onClick={() => setActiveModal('privacy')} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100">
+              <div className="flex items-center gap-2">
+                <span>🔒</span>
                 <span className="text-gray-800 font-medium text-sm">개인정보처리방침</span>
               </div>
               <span className="text-gray-400">→</span>
@@ -1108,35 +940,46 @@ export default function MyPage() {
           </div>
         </div>
 
-        {/* 로그아웃 버튼 */}
+        {/* ===== 로그아웃 버튼 ===== */}
         <button
           onClick={handleLogout}
-          className="w-full py-2.5 rounded-lg font-bold text-sm bg-red-500 text-white hover:bg-red-600 shadow-md hover:shadow-lg transition-all mt-4"
+          className="w-full py-3 bg-red-500 text-white rounded-xl font-bold text-sm border-2 border-red-700 hover:bg-red-600"
         >
           로그아웃
         </button>
+
+        {/* ===== 푸터 ===== */}
+        <div className="text-center pt-2">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <span className="text-xs">☯️</span>
+            <span className="text-gray-600 font-bold text-xs">오운완</span>
+            <span className="text-xs">☯️</span>
+          </div>
+          <p className="text-gray-400 text-xs">© 2025 OWNWAN. All Rights Reserved.</p>
+        </div>
+
       </div>
 
-      {/* 고객센터 모달들 */}
+      {/* ===== 고객센터 모달들 ===== */}
       {activeModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setActiveModal(null)}>
-          <div onClick={e => e.stopPropagation()} className="bg-white rounded-2xl w-full max-w-md shadow-xl flex flex-col" style={{ maxHeight: '85vh' }}>
+          <div onClick={e => e.stopPropagation()} className="bg-white rounded-3xl w-full max-w-md shadow-xl flex flex-col border-2 border-gray-900" style={{ maxHeight: '85vh' }}>
 
             {/* 문의하기 모달 */}
             {activeModal === 'contact' && (
               <>
-                <div className="flex-shrink-0 border-b border-gray-200 p-4 flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">✉️ 문의하기</h2>
-                  <button onClick={() => setActiveModal(null)} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full text-2xl">&times;</button>
+                <div className="flex-shrink-0 bg-gray-900 p-4 flex items-center justify-between rounded-t-3xl">
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">✉️ 문의하기</h2>
+                  <button onClick={() => setActiveModal(null)} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 rounded-full text-2xl">&times;</button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-5">
                   <div className="space-y-4">
                     <p className="text-gray-700 text-sm">문의사항이 있으시면 아래 이메일로 연락해 주세요.</p>
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
                       <p className="text-gray-500 text-xs mb-1">이메일</p>
                       <p className="text-gray-900 font-medium">chol5622729@naver.com</p>
                     </div>
-                    <a href="mailto:chol5622729@naver.com?subject=[오운완 문의]" className="block w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-lg text-center hover:from-purple-700 hover:to-indigo-700 transition-all">
+                    <a href="mailto:chol5622729@naver.com?subject=[오운완 문의]" className="block w-full py-3 bg-gray-900 text-white font-bold rounded-xl text-center">
                       이메일 보내기
                     </a>
                     <p className="text-xs text-gray-500 text-center">답변은 영업일 기준 1~2일 이내에 드립니다.</p>
@@ -1148,9 +991,9 @@ export default function MyPage() {
             {/* 환불정책 모달 */}
             {activeModal === 'refund' && (
               <>
-                <div className="flex-shrink-0 border-b border-gray-200 p-4 flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">📋 환불정책</h2>
-                  <button onClick={() => setActiveModal(null)} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full text-2xl">&times;</button>
+                <div className="flex-shrink-0 bg-gray-900 p-4 flex items-center justify-between rounded-t-3xl">
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">📋 환불정책</h2>
+                  <button onClick={() => setActiveModal(null)} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 rounded-full text-2xl">&times;</button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-5 space-y-4 text-gray-700 text-sm leading-relaxed">
                   <section>
@@ -1192,9 +1035,9 @@ export default function MyPage() {
             {/* 이용약관 모달 */}
             {activeModal === 'terms' && (
               <>
-                <div className="flex-shrink-0 border-b border-gray-200 p-4 flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">📄 이용약관</h2>
-                  <button onClick={() => setActiveModal(null)} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full text-2xl">&times;</button>
+                <div className="flex-shrink-0 bg-gray-900 p-4 flex items-center justify-between rounded-t-3xl">
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">📄 이용약관</h2>
+                  <button onClick={() => setActiveModal(null)} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 rounded-full text-2xl">&times;</button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-5 space-y-4 text-gray-700 text-sm leading-relaxed">
                   <section>
@@ -1239,9 +1082,9 @@ export default function MyPage() {
             {/* 개인정보처리방침 모달 */}
             {activeModal === 'privacy' && (
               <>
-                <div className="flex-shrink-0 border-b border-gray-200 p-4 flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">🔒 개인정보처리방침</h2>
-                  <button onClick={() => setActiveModal(null)} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full text-2xl">&times;</button>
+                <div className="flex-shrink-0 bg-gray-900 p-4 flex items-center justify-between rounded-t-3xl">
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">🔒 개인정보처리방침</h2>
+                  <button onClick={() => setActiveModal(null)} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 rounded-full text-2xl">&times;</button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-5 space-y-4 text-gray-700 text-sm leading-relaxed">
                   <section>
