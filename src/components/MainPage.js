@@ -983,7 +983,7 @@ export default function MainPage() {
       </div>
 
       {/* ===== 하단 네비게이션 ===== */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-50">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-50 overflow-hidden pt-4">
         <div className="max-w-md mx-auto flex items-center justify-around py-2">
           <button 
             onClick={() => navigate('/payment')}
@@ -1001,7 +1001,7 @@ export default function MainPage() {
           </button>
           <button 
             onClick={() => navigate('/newyear')}
-            className="flex flex-col items-center gap-1 px-6 py-2 bg-gray-900 text-white rounded-2xl -mt-4 shadow-lg"
+            className="flex flex-col items-center gap-1 px-5 py-2 bg-red-500 text-white rounded-2xl shadow-lg"
           >
             <span className="text-xl">🎊</span>
             <span className="text-xs font-bold">신년운세</span>

@@ -357,12 +357,12 @@ export default function MyPage() {
         />
       ))}
 
-      {/* 🏠 플로팅 홈버튼 */}
+      {/* 🏠 플로팅 홈버튼 - 네비바 위에 위치 */}
       <button
         onClick={() => navigate('/')}
-        className="fixed bottom-6 left-6 z-50 w-14 h-14 bg-gray-900 rounded-full flex items-center justify-center shadow-2xl border-2 border-gray-700 hover:bg-gray-800 transition-all hover:scale-110"
+        className="fixed bottom-24 left-4 z-50 w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center shadow-2xl border-2 border-gray-700 hover:bg-gray-800 transition-all hover:scale-110"
       >
-        <span className="text-2xl">🏠</span>
+        <span className="text-xl">🏠</span>
       </button>
 
       {/* ===== 등급 시스템 모달 ===== */}
