@@ -1,9 +1,95 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Check } from 'lucide-react';
+import Footer from './Footer';
+import LoadingScreen from './LoadingScreen';
 
-// V6 월간사주 결제페이지 미리보기
-export default function MonthlyPaymentPageV6Preview() {
+export default function MonthlyPaymentPage() {
+  const navigate = useNavigate();
   const [selectedMethod, setSelectedMethod] = useState('card');
   const [agreed, setAgreed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+  const handlePayment = async () => {
+    if (!agreed) {
+      alert('서비스 이용약관에 동의해주세요!');
+      return;
+    }
+    
+    // 로그인 체크
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+    
+    // 사용자 생년월일 정보 가져오기
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://ownwan-backend.onrender.com';
+      
+      const profileRes = await fetch(`${backendUrl}/api/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      const profileData = await profileRes.json();
+      
+      if (!profileData.success || !profileData.birth) {
+        alert('생년월일 정보가 필요합니다. 마이페이지에서 입력해주세요.');
+        navigate('/mypage');
+        return;
+      }
+      
+      // TODO: 실제 결제 연동 (토스페이먼츠)
+      // 지금은 테스트용으로 바로 API 호출
+      
+      const birth = profileData.birth;
+      const now = new Date();
+      const requestData = {
+        name: profileData.name || '사용자',
+        birthYear: birth.year,
+        birthMonth: birth.month,
+        birthDay: birth.day,
+        birthHour: birth.hour || 12,
+        gender: profileData.gender || '남자',
+        isLunar: birth.is_lunar || false,
+        targetYear: now.getFullYear(),
+        targetMonth: now.getMonth() + 1
+      };
+      
+      setIsLoading(true);
+      // 월간사주 API 호출
+      const fortuneRes = await fetch(`${backendUrl}/api/monthly-saju`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(requestData)
+      });
+      
+      const fortuneData = await fortuneRes.json();
+      
+      if (fortuneData.gpt_fortune) {
+        // 결과 페이지로 이동
+        navigate('/monthly-result', { state: { monthlyData: fortuneData } });
+      } else {
+        alert('운세 생성에 실패했습니다: ' + (fortuneData.error || '알 수 없는 오류'));
+        setIsLoading(false);
+      }
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert('오류가 발생했습니다: ' + error.message);
+      setIsLoading(false);
+    }
+  };
 
   const paymentMethods = [
     { id: 'card', icon: '💳', label: '카드', color: '#374151' },
@@ -12,11 +98,46 @@ export default function MonthlyPaymentPageV6Preview() {
     { id: 'toss', icon: 'toss', label: '토스', color: '#0064FF' },
   ];
 
+  // 로딩 중이면 로딩 화면 표시
+  if (isLoading) {
+    return <LoadingScreen type="monthly" />;
+  }
+
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{
-      background: 'linear-gradient(180deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%)'
-    }}>
-      {/* 육각형 패턴 배경 (원본과 동일 opacity-5) */}
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 pb-8 overflow-hidden relative">
+      {/* 커스텀 애니메이션 */}
+      <style>{`
+        @keyframes wiggle {
+          0%, 100% { transform: rotate(-3deg); }
+          50% { transform: rotate(3deg); }
+        }
+        @keyframes goldGlow {
+          0%, 100% { box-shadow: 0 0 5px #fbbf24, 0 0 10px #fbbf24, 0 0 15px #f59e0b; }
+          50% { box-shadow: 0 0 10px #fbbf24, 0 0 20px #fbbf24, 0 0 30px #f59e0b; }
+        }
+        @keyframes buttonGlow {
+          0%, 100% { box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 0 5px rgba(251,191,36,0.3); }
+          50% { box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 15px rgba(251,191,36,0.5); }
+        }
+        @keyframes shine {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+        @keyframes sparkle {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.2); }
+        }
+      `}</style>
+
+      {/* 육각형 패턴 배경 */}
       <div className="absolute inset-0 opacity-5 pointer-events-none">
         <svg width="100%" height="100%">
           <defs>
@@ -28,22 +149,23 @@ export default function MonthlyPaymentPageV6Preview() {
         </svg>
       </div>
 
-      <div className="relative z-10 max-w-md mx-auto px-4 py-6">
+      <div className="relative z-10 max-w-md mx-auto p-4 space-y-4">
         
-        {/* ===== 흔들흔들 로고 + 금빛 글로우 ===== */}
-        <div className="flex justify-center mb-4">
-          <div style={{animation: 'wiggle 2s ease-in-out infinite'}}>
+        {/* ===== 상단 로고 (흔들흔들 + 금빛 글로우) ===== */}
+        <div className="text-center pt-2">
+          <div 
+            className="inline-block relative"
+            style={{ animation: 'wiggle 2s ease-in-out infinite' }}
+          >
             <div 
-              className="bg-white rounded-2xl px-6 py-3 border-2 border-gray-900 relative"
-              style={{
-                animation: 'goldGlow 2s ease-in-out infinite',
-                boxShadow: '0 0 15px rgba(251,191,36,0.4)'
-              }}
-            >
+              className="absolute -inset-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 rounded-2xl"
+              style={{ animation: 'goldGlow 2s ease-in-out infinite' }}
+            ></div>
+            <div className="relative bg-gradient-to-b from-gray-50 to-white rounded-2xl px-5 py-2 border-2 border-gray-900">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">🌙</span>
-                <span className="text-xl font-black text-gray-900">오운완</span>
-                <span className="text-lg" style={{animation: 'sparkle 1.5s infinite'}}>✨</span>
+                <span className="text-xl">🌙</span>
+                <span className="text-gray-900 text-xl font-black">오운완</span>
+                <span className="text-base" style={{ animation: 'sparkle 1.5s infinite' }}>✨</span>
               </div>
             </div>
           </div>
@@ -51,34 +173,47 @@ export default function MonthlyPaymentPageV6Preview() {
 
         {/* ===== 해금 배너 ===== */}
         <div 
-          className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 rounded-xl p-3 mb-4 border-2 border-gray-900 text-center"
-          style={{animation: 'float 3s ease-in-out infinite'}}
+          className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 rounded-2xl p-3 border-2 border-amber-500 shadow-lg relative overflow-hidden"
+          style={{ animation: 'float 3s ease-in-out infinite' }}
         >
-          <p className="text-gray-900 font-black text-sm">
-            지금 해금하면 🔮 수련생 뱃지 획득!
-          </p>
+          <div className="relative flex items-center justify-center gap-3">
+            <span className="text-2xl">🎁</span>
+            <div className="text-center">
+              <div className="text-gray-900 font-black text-sm">지금 해금하면</div>
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-2xl">🔮</span>
+                <span className="text-gray-900 font-black text-lg">수련생 뱃지 획득!</span>
+              </div>
+            </div>
+            <span className="text-2xl">🎁</span>
+          </div>
         </div>
 
-        {/* ===== 메인 카드 ===== */}
-        <div className="bg-white rounded-3xl border-2 border-gray-900 shadow-2xl overflow-hidden mb-4">
-          
-          {/* 카드 헤더 */}
-          <div className="bg-gray-900 px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">🌙</span>
-                <span className="text-white font-black">월간사주</span>
+        {/* ===== 메인 상품 카드 ===== */}
+        <div className="bg-white rounded-3xl overflow-hidden border-2 border-gray-900 shadow-2xl">
+          {/* 헤더 */}
+          <div className="bg-gray-900 px-4 py-3 relative overflow-hidden">
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div 
+                  className="w-10 h-10 bg-white rounded-xl flex items-center justify-center"
+                  style={{ animation: 'float 2s ease-in-out infinite' }}
+                >
+                  <span className="text-xl">🌙</span>
+                </div>
+                <div>
+                  <div className="text-white font-black text-lg">월간사주</div>
+                  <div className="text-gray-400 text-xs">MONTHLY FORTUNE</div>
+                </div>
               </div>
-              <span className="bg-amber-400 text-gray-900 text-xs font-black px-3 py-1.5 rounded-lg">
+              <div className="bg-amber-400 text-gray-900 text-xs font-black px-3 py-1.5 rounded-lg">
                 1회 구매
-              </span>
+              </div>
             </div>
           </div>
 
-          {/* 카드 바디 */}
           <div className="p-5">
-            
-            {/* 가격 섹션 (먼저!) */}
+            {/* 가격 섹션 */}
             <div className="text-center mb-5 relative">
               <div className="inline-block bg-amber-100 text-amber-700 text-xs font-bold px-4 py-1.5 rounded-full mb-3">
                 📅 이번 달 운세 종합 분석
@@ -102,7 +237,7 @@ export default function MonthlyPaymentPageV6Preview() {
               </div>
             </div>
 
-            {/* ☯️ 해금되는 나의 운세 ☯️ (아래!) */}
+            {/* ☯️ 해금되는 나의 운세 ☯️ */}
             <div className="mb-4">
               <div className="flex items-center justify-center gap-2 mb-3">
                 <span className="text-lg">☯️</span>
@@ -132,7 +267,7 @@ export default function MonthlyPaymentPageV6Preview() {
               </div>
             </div>
 
-            {/* 경험치 바 스타일 (원본과 동일) */}
+            {/* 경험치 바 스타일 */}
             <div className="bg-gray-100 rounded-2xl p-3 border-2 border-gray-200">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-gray-600 text-xs font-bold">📊 분석 레벨</span>
@@ -148,11 +283,10 @@ export default function MonthlyPaymentPageV6Preview() {
                 <span className="text-amber-600 font-black text-sm">✨ 14개 항목 풀 분석 ✨</span>
               </div>
             </div>
-
           </div>
         </div>
 
-        {/* ===== 결제 수단 (원본과 동일) ===== */}
+        {/* ===== 결제 수단 ===== */}
         <div className="bg-white rounded-3xl overflow-hidden border-2 border-gray-900 shadow-2xl mb-4">
           <div className="bg-gray-900 px-4 py-3 text-center">
             <span className="text-white font-black text-base">💳 결제 수단</span>
@@ -203,124 +337,83 @@ export default function MonthlyPaymentPageV6Preview() {
         </div>
 
         {/* ===== 약관 동의 ===== */}
-        <div className="bg-white rounded-2xl border-2 border-gray-900 p-4 mb-4">
-          <button
-            onClick={() => setAgreed(!agreed)}
-            className="w-full flex items-center gap-3"
-          >
-            <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-              agreed ? 'bg-gray-900 border-gray-900' : 'bg-white border-gray-400'
-            }`}>
-              {agreed && <span className="text-white text-xs">✓</span>}
-            </div>
-            <span className="text-gray-700 text-sm font-medium text-left">
-              서비스 이용약관 및 개인정보 처리방침에 동의합니다
-            </span>
-          </button>
-        </div>
-
-        {/* ===== 결제 버튼 (buttonGlow + shine + bounce) ===== */}
         <button
+          onClick={() => setAgreed(!agreed)}
+          className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center gap-3 ${
+            agreed ? 'bg-gray-900 border-gray-900' : 'bg-white border-gray-300'
+          }`}
+        >
+          <div className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center flex-shrink-0 ${
+            agreed ? 'bg-amber-400 border-amber-400' : 'bg-white border-gray-300'
+          }`}>
+            {agreed && <Check className="w-4 h-4 text-gray-900" />}
+          </div>
+          <span className={`text-sm font-bold ${agreed ? 'text-white' : 'text-gray-700'}`}>
+            서비스 이용약관 및 개인정보 처리방침 동의
+          </span>
+        </button>
+
+        {/* ===== 결제 버튼 ===== */}
+        <button
+          onClick={handlePayment}
+          disabled={!agreed}
           className={`relative w-full py-5 rounded-2xl font-black text-xl overflow-hidden border-2 ${
             agreed
               ? 'bg-gray-900 text-white border-gray-900'
-              : 'bg-gray-300 text-gray-500 border-gray-400 cursor-not-allowed'
+              : 'bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed'
           }`}
-          style={agreed ? {animation: 'buttonGlow 2s ease-in-out infinite'} : {}}
+          style={agreed ? { animation: 'buttonGlow 2s ease-in-out infinite' } : {}}
         >
           {agreed && (
             <div 
               className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/40 to-transparent"
-              style={{animation: 'shine 2s infinite'}}
-            />
+              style={{ animation: 'shine 2s infinite' }}
+            ></div>
           )}
           <div className="relative flex items-center justify-center gap-3">
-            <span 
-              className="text-2xl" 
-              style={agreed ? {animation: 'bounce 1s ease-in-out infinite'} : {}}
-            >🚀</span>
+            <span className="text-2xl" style={agreed ? { animation: 'bounce 1s ease-in-out infinite' } : {}}>🚀</span>
             <span>운세 해금하기</span>
             <span className="text-2xl">→</span>
           </div>
         </button>
 
         {/* ===== 해금 보상 ===== */}
-        <div className="mt-4 bg-white rounded-2xl border-2 border-gray-900 p-4">
-          <p className="text-center text-gray-900 font-black text-sm mb-3">🎁 해금 보상</p>
-          <div className="flex justify-center gap-3">
-            {[
-              { icon: '🔮', label: '뱃지' },
-              { icon: '🌙', label: '월간리포트' },
-              { icon: '📅', label: '한달운세' },
-              { icon: '📊', label: '14분석' },
-            ].map((reward, idx) => (
-              <div key={idx} className="text-center">
-                <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center border-2 border-gray-300 mb-1">
-                  <span className="text-xl">{reward.icon}</span>
-                </div>
-                <span className="text-gray-600 text-xs font-bold">{reward.label}</span>
-              </div>
-            ))}
+        <div className="bg-white rounded-2xl p-4 border-2 border-gray-200 shadow-lg">
+          <div className="text-center mb-3">
+            <span className="text-gray-900 font-black text-sm">🎁 해금 보상</span>
+          </div>
+          <div className="flex justify-center gap-2">
+            <div className="flex flex-col items-center gap-1 bg-amber-50 px-3 py-2 rounded-xl border border-amber-200">
+              <span className="text-xl">🔮</span>
+              <span className="text-amber-700 text-xs font-bold">뱃지</span>
+            </div>
+            <div className="flex flex-col items-center gap-1 bg-blue-50 px-3 py-2 rounded-xl border border-blue-200">
+              <span className="text-xl">🌙</span>
+              <span className="text-blue-700 text-xs font-bold">월간리포트</span>
+            </div>
+            <div className="flex flex-col items-center gap-1 bg-green-50 px-3 py-2 rounded-xl border border-green-200">
+              <span className="text-xl">📅</span>
+              <span className="text-green-700 text-xs font-bold">한달운세</span>
+            </div>
+            <div className="flex flex-col items-center gap-1 bg-purple-50 px-3 py-2 rounded-xl border border-purple-200">
+              <span className="text-xl">📊</span>
+              <span className="text-purple-700 text-xs font-bold">14분석</span>
+            </div>
           </div>
         </div>
 
-        {/* ===== 하단 안내 ===== */}
-        <div className="mt-4 text-center">
-          <p className="text-gray-500 text-xs leading-relaxed">
-            💳 안전한 결제 • 토스페이먼츠<br/>
-            📅 구매 후 마이페이지에서 언제든 다시 보기
-          </p>
+        {/* ===== 푸터 ===== */}
+        <div className="text-center pt-4">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <span className="text-xs">☯️</span>
+            <span className="text-gray-600 font-bold text-xs">오운완</span>
+            <span className="text-xs">☯️</span>
+          </div>
+          <p className="text-gray-400 text-xs">© 2025 OWNWAN. All Rights Reserved.</p>
         </div>
 
-        {/* 푸터 */}
-        <div className="mt-6 text-center text-gray-400 text-xs">
-          <p>© 2025 오운완 | 오늘의 운세 완료!</p>
-        </div>
       </div>
-
-      {/* 애니메이션 스타일 */}
-      <style>{`
-        @keyframes wiggle {
-          0%, 100% { transform: rotate(-3deg); }
-          50% { transform: rotate(3deg); }
-        }
-        
-        @keyframes goldGlow {
-          0%, 100% { box-shadow: 0 0 5px #fbbf24, 0 0 10px #fbbf24, 0 0 15px #f59e0b; }
-          50% { box-shadow: 0 0 10px #fbbf24, 0 0 20px #fbbf24, 0 0 30px #f59e0b; }
-        }
-        
-        @keyframes sparkle {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(1.2); }
-        }
-        
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
-        }
-        
-        @keyframes buttonGlow {
-          0%, 100% { box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 0 5px rgba(251,191,36,0.3); }
-          50% { box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 15px rgba(251,191,36,0.5); }
-        }
-        
-        @keyframes shine {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-        
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
-        }
-        
-        @keyframes coinPop {
-          0% { transform: scale(0.8); opacity: 0; }
-          50% { transform: scale(1.1); }
-          100% { transform: scale(1); opacity: 1; }
-        }
-      `}</style>
+      <Footer />
     </div>
   );
 }
