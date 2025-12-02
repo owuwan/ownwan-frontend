@@ -1,8 +1,92 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Check } from 'lucide-react';
+import Footer from './Footer';
+import LoadingScreen from './LoadingScreen';
 
-export default function PaymentPagePreviewV5() {
+export default function PaymentPage() {
+  const navigate = useNavigate();
   const [selectedMethod, setSelectedMethod] = useState('card');
   const [agreed, setAgreed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+  const handlePayment = async () => {
+    if (!agreed) {
+      alert('서비스 이용약관에 동의해주세요!');
+      return;
+    }
+    
+    // 로그인 체크
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+    
+    // 사용자 생년월일 정보 가져오기
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://ownwan-backend.onrender.com';
+      
+      const profileRes = await fetch(`${backendUrl}/api/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      const profileData = await profileRes.json();
+      
+      if (!profileData.success || !profileData.birth) {
+        alert('생년월일 정보가 필요합니다. 마이페이지에서 입력해주세요.');
+        navigate('/mypage');
+        return;
+      }
+      
+      // TODO: 실제 결제 연동 (토스페이먼츠)
+      // 지금은 테스트용으로 바로 API 호출
+      
+      const birth = profileData.birth;
+      const requestData = {
+        name: profileData.name || '사용자',
+        birthYear: birth.year,
+        birthMonth: birth.month,
+        birthDay: birth.day,
+        birthHour: birth.hour || 12,
+        gender: profileData.gender || '남자',
+        isLunar: birth.is_lunar || false
+      };
+      
+      setIsLoading(true);
+      // 일일사주 API 호출
+      const fortuneRes = await fetch(`${backendUrl}/api/saju`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(requestData)
+      });
+      
+      const fortuneData = await fortuneRes.json();
+      
+      if (fortuneData.saju || fortuneData.gpt_fortune) {
+        // 결과 페이지로 이동
+        navigate('/result', { state: { sajuData: fortuneData } });
+      } else {
+        alert('운세 생성에 실패했습니다: ' + (fortuneData.error || '알 수 없는 오류'));
+        setIsLoading(false);
+      }
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert('오류가 발생했습니다: ' + error.message);
+      setIsLoading(false);
+    }
+  };
 
   const paymentMethods = [
     { id: 'card', icon: '💳', label: '카드', color: '#374151' },
@@ -10,6 +94,11 @@ export default function PaymentPagePreviewV5() {
     { id: 'naver', icon: 'naver', label: '네이버페이', color: '#03C75A' },
     { id: 'toss', icon: 'toss', label: '토스', color: '#0064FF' },
   ];
+
+  // 로딩 중이면 로딩 화면 표시
+  if (isLoading) {
+    return <LoadingScreen type="daily" />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 pb-8 overflow-hidden relative">
@@ -44,9 +133,9 @@ export default function PaymentPagePreviewV5() {
           50% { transform: scale(1.1); }
           100% { transform: scale(1); }
         }
-        @keyframes coinSpin {
-          0% { transform: rotateY(0deg); }
-          100% { transform: rotateY(360deg); }
+        @keyframes sparkle {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.2); }
         }
       `}</style>
 
@@ -64,7 +153,7 @@ export default function PaymentPagePreviewV5() {
 
       <div className="relative z-10 max-w-md mx-auto p-4 space-y-4">
         
-        {/* ===== 상단 로고 ===== */}
+        {/* ===== 상단 로고 (흔들흔들 + 금빛 글로우) ===== */}
         <div className="text-center pt-2">
           <div 
             className="inline-block relative"
@@ -78,13 +167,13 @@ export default function PaymentPagePreviewV5() {
               <div className="flex items-center gap-2">
                 <span className="text-xl">📬</span>
                 <span className="text-gray-900 text-xl font-black">오운완</span>
-                <span className="text-base">✨</span>
+                <span className="text-base" style={{ animation: 'sparkle 1.5s infinite' }}>✨</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ===== 🎮 실제 뱃지 + 해금 배너 ===== */}
+        {/* ===== 해금 배너 ===== */}
         <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 rounded-2xl p-3 border-2 border-amber-500 shadow-lg relative overflow-hidden">
           <div 
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
@@ -136,7 +225,6 @@ export default function PaymentPagePreviewV5() {
           <div className="p-5">
             {/* 가격 섹션 */}
             <div className="text-center mb-5 relative">
-
               <div className="inline-block bg-amber-100 text-amber-700 text-xs font-bold px-4 py-1.5 rounded-full mb-3">
                 ☀️ 매일 아침 8시 카톡 발송
               </div>
@@ -181,7 +269,6 @@ export default function PaymentPagePreviewV5() {
                   <div 
                     key={idx} 
                     className="flex flex-col items-center gap-1 bg-gray-50 border-2 border-gray-200 rounded-xl p-2 hover:border-amber-400 hover:bg-amber-50 transition-all cursor-pointer"
-                    style={{ animation: `float ${2 + idx * 0.2}s ease-in-out infinite` }}
                   >
                     <span className="text-xl">{item.icon}</span>
                     <span className="text-gray-700 text-xs font-bold">{item.text}</span>
@@ -210,7 +297,7 @@ export default function PaymentPagePreviewV5() {
         </div>
 
         {/* ===== 결제 수단 ===== */}
-        <div className="bg-white rounded-3xl overflow-hidden border-2 border-gray-900 shadow-2xl">
+        <div className="bg-white rounded-3xl overflow-hidden border-2 border-gray-900 shadow-2xl mb-4">
           <div className="bg-gray-900 px-4 py-3 text-center">
             <span className="text-white font-black text-base">💳 결제 수단</span>
           </div>
@@ -269,7 +356,7 @@ export default function PaymentPagePreviewV5() {
           <div className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center flex-shrink-0 ${
             agreed ? 'bg-amber-400 border-amber-400' : 'bg-white border-gray-300'
           }`}>
-            {agreed && <span className="text-gray-900 font-black">✓</span>}
+            {agreed && <Check className="w-4 h-4 text-gray-900" />}
           </div>
           <span className={`text-sm font-bold ${agreed ? 'text-white' : 'text-gray-700'}`}>
             서비스 이용약관 및 개인정보 처리방침 동의
@@ -278,7 +365,7 @@ export default function PaymentPagePreviewV5() {
 
         {/* ===== 결제 버튼 ===== */}
         <button
-          onClick={() => alert('결제!')}
+          onClick={handlePayment}
           disabled={!agreed}
           className={`relative w-full py-5 rounded-2xl font-black text-xl overflow-hidden border-2 ${
             agreed
@@ -300,7 +387,7 @@ export default function PaymentPagePreviewV5() {
           </div>
         </button>
 
-        {/* ===== 🎮 해금 보상 (일일사주 전용) ===== */}
+        {/* ===== 해금 보상 ===== */}
         <div className="bg-white rounded-2xl p-4 border-2 border-gray-200 shadow-lg">
           <div className="text-center mb-3">
             <span className="text-gray-900 font-black text-sm">🎁 해금 보상</span>
@@ -336,6 +423,7 @@ export default function PaymentPagePreviewV5() {
         </div>
 
       </div>
+      <Footer />
     </div>
   );
 }
