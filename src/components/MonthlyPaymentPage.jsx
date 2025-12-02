@@ -6,10 +6,10 @@ export default function MonthlyPaymentPageV6Preview() {
   const [agreed, setAgreed] = useState(false);
 
   const paymentMethods = [
-    { id: 'card', label: '신용/체크카드', icon: '💳' },
-    { id: 'kakao', label: '카카오페이', icon: '🟡' },
-    { id: 'naver', label: '네이버페이', icon: '🟢' },
-    { id: 'toss', label: '토스페이', icon: '🔵' },
+    { id: 'card', icon: '💳', label: '카드', color: '#374151' },
+    { id: 'kakao', icon: 'kakao', label: '카카오페이', color: '#FEE500' },
+    { id: 'naver', icon: 'naver', label: '네이버페이', color: '#03C75A' },
+    { id: 'toss', icon: 'toss', label: '토스', color: '#0064FF' },
   ];
 
   return (
@@ -152,34 +152,53 @@ export default function MonthlyPaymentPageV6Preview() {
           </div>
         </div>
 
-        {/* ===== 결제수단 카드 ===== */}
-        <div className="bg-white rounded-3xl border-2 border-gray-900 shadow-2xl overflow-hidden mb-4">
-          <div className="bg-gray-900 px-4 py-3">
-            <span className="text-white font-black text-sm">💳 결제수단 선택</span>
+        {/* ===== 결제 수단 (원본과 동일) ===== */}
+        <div className="bg-white rounded-3xl overflow-hidden border-2 border-gray-900 shadow-2xl mb-4">
+          <div className="bg-gray-900 px-4 py-3 text-center">
+            <span className="text-white font-black text-base">💳 결제 수단</span>
           </div>
-          
-          <div className="p-4 space-y-2">
-            {paymentMethods.map((method) => (
-              <button
-                key={method.id}
-                onClick={() => setSelectedMethod(method.id)}
-                className={`w-full p-3 rounded-xl border-2 transition-all flex items-center justify-between ${
-                  selectedMethod === method.id
-                    ? 'bg-gray-100 border-gray-900'
-                    : 'bg-white border-gray-200 hover:border-gray-400'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">{method.icon}</span>
-                  <span className="text-gray-900 font-bold text-sm">{method.label}</span>
-                </div>
-                {selectedMethod === method.id && (
-                  <div className="w-5 h-5 bg-gray-900 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs">✓</span>
+
+          <div className="p-4">
+            <div className="grid grid-cols-4 gap-2">
+              {paymentMethods.map((method) => (
+                <button
+                  key={method.id}
+                  onClick={() => setSelectedMethod(method.id)}
+                  className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-2 relative ${
+                    selectedMethod === method.id
+                      ? 'border-gray-900 bg-gray-50 scale-105'
+                      : 'border-gray-200 bg-white hover:border-gray-400'
+                  }`}
+                >
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{
+                    backgroundColor: method.icon === 'kakao' ? '#FEE500' : 
+                                     method.icon === 'naver' ? '#03C75A' : 
+                                     method.icon === 'toss' ? '#0064FF' : '#f3f4f6'
+                  }}>
+                    {method.icon === 'kakao' ? (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="#3C1E1E">
+                        <path d="M12 3C6.48 3 2 6.58 2 11c0 2.8 1.86 5.25 4.64 6.67-.15.56-.54 2.03-.62 2.35-.1.4.15.39.31.28.13-.08 2.04-1.38 2.87-1.94.59.09 1.2.14 1.8.14 5.52 0 10-3.58 10-8s-4.48-8-10-8z"/>
+                      </svg>
+                    ) : method.icon === 'naver' ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                        <path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/>
+                      </svg>
+                    ) : method.icon === 'toss' ? (
+                      <span className="text-white font-black text-sm">T</span>
+                    ) : (
+                      <span className="text-xl">{method.icon}</span>
+                    )}
                   </div>
-                )}
-              </button>
-            ))}
+                  <span className={`text-xs font-bold ${
+                    selectedMethod === method.id ? 'text-gray-900' : 'text-gray-500'
+                  }`}>{method.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-3 text-center">
+              <span className="text-gray-400 text-xs">🔒 토스페이먼츠 안전결제</span>
+            </div>
           </div>
         </div>
 
