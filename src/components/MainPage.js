@@ -983,7 +983,7 @@ export default function MainPage() {
       </div>
 
       {/* ===== 하단 네비게이션 ===== */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-50 overflow-hidden pt-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-50">
         <div className="max-w-md mx-auto flex items-center justify-around py-2">
           <button 
             onClick={() => navigate('/payment')}
