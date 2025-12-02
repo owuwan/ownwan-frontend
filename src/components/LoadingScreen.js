@@ -1,187 +1,428 @@
 import React, { useState, useEffect } from 'react';
 
+// ============================================
+// 🎮 LoadingScreen V6 - 전체 코드
+// 기능 100% + 디자인 100%
+// ============================================
+
 export default function LoadingScreen({ type = 'daily', birthInfo = null }) {
   const [currentPhase, setCurrentPhase] = useState(0);
   const [currentEmoji, setCurrentEmoji] = useState(0);
+  const [displayProgress, setDisplayProgress] = useState(0);
+  const [showTip, setShowTip] = useState(0);
+  const [dots, setDots] = useState('');
+  const [currentFortune, setCurrentFortune] = useState(0);
 
-  // 타입별 로딩 문구
-  const loadingTexts = {
+  // 타입별 설정
+  const gameConfig = {
     daily: {
-      phases: [
-        { main: '사주 팔자 분석 중', sub: '천간과 지지를 계산하고 있어요', progress: 30 },
-        { main: '14가지 운세 생성 중', sub: '꼼꼼히 당신만의 운세를 작성하고 있어요 ✍️', progress: 70 },
-        { main: '최종 점검 중', sub: '곧 만나실 수 있어요! 🎉', progress: 95 }
+      questName: '오늘의 운명 해금',
+      stages: [
+        { boss: '📜 사주팔자', action: '분석 중', progress: 25 },
+        { boss: '🔮 14가지 운세', action: '생성 중', progress: 60 },
+        { boss: '✨ 최종 봉인', action: '해제 중', progress: 90 }
       ],
+      icon: '📬',
+      badge: '🏆 DAILY',
+      reward: ['📬', '🔮', '📊'],
+      fortunes: ['💕 애정운', '💰 금전운', '💼 직장운', '💪 건강운', '🧳 여행운', '🎯 행운포인트', '⚠️ 주의사항', '📜 종합운'],
       title: `${new Date().getFullYear()}년 ${new Date().getMonth() + 1}월 ${new Date().getDate()}일 오늘의 운세`
     },
     monthly: {
-      phases: [
-        { main: '사주 팔자 분석 중', sub: '천간과 지지를 계산하고 있어요', progress: 30 },
-        { main: '월간 운세 생성 중', sub: '이번 달 운세를 꼼꼼히 분석하고 있어요 📅', progress: 70 },
-        { main: '최종 점검 중', sub: '곧 만나실 수 있어요! 🎉', progress: 95 }
+      questName: '월간 운명 해금',
+      stages: [
+        { boss: '📜 사주팔자', action: '분석 중', progress: 25 },
+        { boss: '📅 월간 대운', action: '계산 중', progress: 60 },
+        { boss: '✨ 최종 봉인', action: '해제 중', progress: 90 }
       ],
+      icon: '🌙',
+      badge: '📅 MONTHLY',
+      reward: ['🌙', '🔮', '📊'],
+      fortunes: ['📅 1주차', '📅 2주차', '📅 3주차', '📅 4주차', '💕 애정운', '💰 재물운', '💼 직장운', '💪 건강운'],
       title: `${new Date().getFullYear()}년 ${new Date().getMonth() + 1}월 이달의 운세`
     },
     lifetime: {
-      phases: [
-        { main: '사주 팔자 분석 중', sub: '천간과 지지를 계산하고 있어요', progress: 30 },
-        { main: '평생 대운 분석 중', sub: '10년 단위 운세를 분석하고 있어요 🔮', progress: 70 },
-        { main: '최종 점검 중', sub: '곧 만나실 수 있어요! 🎉', progress: 95 }
+      questName: '평생 운명 해금',
+      stages: [
+        { boss: '📜 사주팔자', action: '분석 중', progress: 20 },
+        { boss: '🔮 대운 흐름', action: '계산 중', progress: 50 },
+        { boss: '⭐ 14항목', action: '생성 중', progress: 80 },
+        { boss: '👑 최종 봉인', action: '해제 중', progress: 95 }
       ],
+      icon: '⭐',
+      badge: '👑 PREMIUM',
+      reward: ['⭐', '🔮', '👑'],
+      fortunes: ['🌟 성격분석', '👒 초년운', '🧑 중년운', '👴 말년운', '📈 10년대운', '💕 애정운', '💰 재물운', '💼 직업운', '💪 건강운', '👶 자녀운'],
       title: birthInfo ? `${birthInfo.year}년 ${birthInfo.month}월 ${birthInfo.day}일` : '평생 사주'
     },
     newyear: {
-      phases: [
-        { main: '사주 팔자 분석 중', sub: '천간과 지지를 계산하고 있어요', progress: 30 },
-        { main: '2025년 신년운세 생성 중', sub: '을사년 한 해 운세를 분석하고 있어요 🐍', progress: 70 },
-        { main: '최종 점검 중', sub: '곧 만나실 수 있어요! 🎉', progress: 95 }
+      questName: '2025 신년 운명 해금',
+      stages: [
+        { boss: '📜 사주팔자', action: '분석 중', progress: 25 },
+        { boss: '🐍 을사년 기운', action: '분석 중', progress: 60 },
+        { boss: '✨ 최종 봉인', action: '해제 중', progress: 90 }
       ],
+      icon: '🎊',
+      badge: '🎆 NEW YEAR',
+      reward: ['🎊', '🔮', '🎆'],
+      fortunes: ['📜 종합운', '📅 월별운세', '💕 연애운', '💰 재물운', '💼 직장운', '💪 건강운', '🤝 대인관계'],
       title: '2025 신년운세'
     }
   };
 
-  const emojis = ['🔮', '✨', '🌙', '⭐', '🎯', '💫'];
+  const tips = [
+    '💡 운세는 참고용! 운명은 내가 만드는 것',
+    '💡 좋은 운세도 노력 없이는 무의미해요',
+    '💡 나쁜 운세는 조심하라는 신호예요',
+    '💡 매일 확인하면 더 정확해져요',
+    '💡 사주는 가능성, 선택은 나의 것'
+  ];
 
-  const config = loadingTexts[type] || loadingTexts.daily;
-  const phase = config.phases[currentPhase];
+  const emojis = ['🔮', '✨', '🌙', '⭐', '🎯', '💫', '☯️', '🏆'];
+
+  const config = gameConfig[type] || gameConfig.daily;
+  const stage = config.stages[currentPhase];
+  const totalPhases = config.stages.length;
+  const totalFortunes = config.fortunes.length;
+  const remainingFortunes = Math.max(0, totalFortunes - Math.floor((displayProgress / 100) * totalFortunes));
+
+  // 점 애니메이션 (...)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots(prev => prev.length >= 3 ? '' : prev + '.');
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // 팁 순환
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowTip(prev => (prev + 1) % tips.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   // 이모지 순환
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentEmoji(prev => (prev + 1) % emojis.length);
-    }, 800);
+    }, 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // 단계 변경
+  // 운세 항목 순환
   useEffect(() => {
-    const timer1 = setTimeout(() => setCurrentPhase(1), 3000);
-    const timer2 = setTimeout(() => setCurrentPhase(2), 6000);
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-    };
-  }, []);
+    const interval = setInterval(() => {
+      setCurrentFortune(prev => (prev + 1) % config.fortunes.length);
+    }, 800);
+    return () => clearInterval(interval);
+  }, [config.fortunes.length]);
+
+  // 단계 변경 (시간 늘림)
+  useEffect(() => {
+    if (type === 'lifetime') {
+      // 평생사주: 더 오래 걸림 (총 약 50초)
+      const timer1 = setTimeout(() => setCurrentPhase(1), 10000);  // 10초
+      const timer2 = setTimeout(() => setCurrentPhase(2), 25000);  // 25초
+      const timer3 = setTimeout(() => setCurrentPhase(3), 45000);  // 45초
+      return () => { 
+        clearTimeout(timer1); 
+        clearTimeout(timer2); 
+        clearTimeout(timer3); 
+      };
+    } else {
+      // 일반: 총 약 25초
+      const timer1 = setTimeout(() => setCurrentPhase(1), 8000);   // 8초
+      const timer2 = setTimeout(() => setCurrentPhase(2), 20000);  // 20초
+      return () => { 
+        clearTimeout(timer1); 
+        clearTimeout(timer2); 
+      };
+    }
+  }, [type]);
+
+  // 프로그레스 바 부드럽게 증가
+  useEffect(() => {
+    const targetProgress = stage.progress;
+    const interval = setInterval(() => {
+      setDisplayProgress(prev => {
+        if (prev < targetProgress) return prev + 1;
+        return prev;
+      });
+    }, 150);
+    return () => clearInterval(interval);
+  }, [stage.progress]);
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{
-      background: 'linear-gradient(135deg, #f5f7fa 0%, #e8eaf0 50%, #f0f2f8 100%)'
-    }}>
-      {/* 육각형 패턴 배경 */}
-      <div className="absolute inset-0 opacity-[0.15]" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='173.2' viewBox='0 0 200 173.2' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-width='2'%3E%3Cpath d='M 50 0 L 100 0 L 125 43.3 L 100 86.6 L 50 86.6 L 25 43.3 Z' opacity='0.4'/%3E%3Cpath d='M 150 0 L 200 0 L 225 43.3 L 200 86.6 L 150 86.6 L 125 43.3 Z' opacity='0.3'/%3E%3Cpath d='M 0 86.6 L 50 86.6 L 75 130 L 50 173.2 L 0 173.2 L -25 130 Z' opacity='0.35'/%3E%3Cpath d='M 100 86.6 L 150 86.6 L 175 130 L 150 173.2 L 100 173.2 L 75 130 Z' opacity='0.4'/%3E%3C/g%3E%3C/svg%3E")`,
-        backgroundSize: '200px 173.2px'
-      }}></div>
-
-      {/* 부드러운 빛 효과 */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-200 rounded-full filter blur-3xl opacity-20"></div>
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-200 rounded-full filter blur-3xl opacity-20"></div>
-
-      <div className="relative z-10 min-h-screen flex items-center justify-center">
-        <div className="text-center px-6 max-w-md w-full">
-          <div className="bg-white rounded-3xl p-8 shadow-2xl border-2 border-gray-900">
-            
-            {/* 오운완 말풍선 로고 */}
-            <div className="flex items-center justify-center mb-6">
-              <div className="relative" style={{animation: 'wiggle 2s ease-in-out infinite'}}>
-                <div className="absolute -inset-2 bg-amber-200 rounded-2xl" style={{animation: 'pulseRing 2s ease-in-out infinite'}}></div>
-                <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl px-5 py-2 shadow-lg" style={{border: '3px solid #111827'}}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">📬</span>
-                    <div className="text-gray-900 text-lg tracking-tight" style={{fontWeight: 900}}>
-                      오운완
-                    </div>
-                    <span className="text-sm" style={{animation: 'sparkle 1.5s ease-in-out infinite'}}>✨</span>
-                  </div>
-                </div>
-                <div 
-                  className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0"
-                  style={{
-                    borderLeft: '6px solid transparent',
-                    borderRight: '6px solid transparent',
-                    borderTop: '8px solid #111827'
-                  }}
-                ></div>
-              </div>
-            </div>
-
-            {/* 타이틀 */}
-            <div className="mb-6">
-              <h3 className="text-sm text-gray-500 mb-2 tracking-wider">{config.title}</h3>
-              <div className="w-16 h-1 bg-gray-800 mx-auto rounded-full"></div>
-            </div>
-
-            {/* 중앙 이모지 + 궤도 원 */}
-            <div className="relative mb-8 flex items-center justify-center" style={{ height: '120px' }}>
-              <div className="absolute border-2 border-dashed rounded-full" style={{
-                width: '100px',
-                height: '100px',
-                borderColor: 'rgba(107, 114, 128, 0.3)',
-                animation: 'spin 10s linear infinite'
-              }}></div>
-              
-              <div className="bg-gradient-to-br from-gray-700 to-gray-900 w-16 h-16 rounded-full flex items-center justify-center shadow-xl z-10" style={{
-                animation: 'pulse 2s ease-in-out infinite'
-              }}>
-                <div className="text-3xl">{emojis[currentEmoji]}</div>
-              </div>
-            </div>
-
-            {/* 단계 표시 */}
-            <div className="flex justify-center gap-3 mb-4">
-              {[0, 1, 2].map((step) => (
-                <div 
-                  key={step}
-                  className="w-3 h-3 rounded-full transition-all duration-500"
-                  style={{
-                    backgroundColor: step <= currentPhase ? '#374151' : '#d1d5db',
-                    transform: step <= currentPhase ? 'scale(1.3)' : 'scale(1)',
-                    boxShadow: step <= currentPhase ? '0 0 10px rgba(55, 65, 81, 0.5)' : 'none'
-                  }}
-                ></div>
-              ))}
-            </div>
-
-            {/* 텍스트 */}
-            <h2 className="text-xl font-bold text-gray-800 mb-2">{phase.main}</h2>
-            <p className="text-sm text-gray-500 mb-6">{phase.sub}</p>
-
-            {/* 프로그레스 바 */}
-            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-gray-600 to-gray-800 rounded-full transition-all duration-1000"
-                style={{ width: `${phase.progress}%` }}
-              ></div>
-            </div>
-            <p className="text-xs text-gray-400 mt-2">{phase.progress}%</p>
-          </div>
-        </div>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 relative overflow-hidden">
       {/* 애니메이션 */}
       <style>{`
+        @keyframes wiggle {
+          0%, 100% { transform: rotate(-3deg); }
+          50% { transform: rotate(3deg); }
+        }
+        @keyframes goldGlow {
+          0%, 100% { box-shadow: 0 0 5px #fbbf24, 0 0 10px #fbbf24, 0 0 15px #f59e0b; }
+          50% { box-shadow: 0 0 10px #fbbf24, 0 0 20px #fbbf24, 0 0 30px #f59e0b; }
+        }
+        @keyframes shine {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
         @keyframes pulse {
           0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-        }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes wiggle {
-          0%, 100% { transform: rotate(-2deg); }
-          50% { transform: rotate(2deg); }
-        }
-        @keyframes pulseRing {
-          0% { transform: scale(0.95); opacity: 0.7; }
-          50% { transform: scale(1.05); opacity: 0.3; }
-          100% { transform: scale(0.95); opacity: 0.7; }
+          50% { transform: scale(1.08); }
         }
         @keyframes sparkle {
           0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.6; transform: scale(1.3); }
+          50% { opacity: 0.5; transform: scale(1.3); }
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-3px); }
+          75% { transform: translateX(3px); }
+        }
+        @keyframes blink {
+          0%, 50%, 100% { opacity: 1; }
+          25%, 75% { opacity: 0.5; }
+        }
+        @keyframes goldCardShine {
+          0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+          100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        @keyframes cardPulse {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+          }
+          50% {
+            transform: scale(1.015);
+            box-shadow: 0 15px 50px rgba(251, 191, 36, 0.25);
+          }
         }
       `}</style>
+
+      {/* 육각형 패턴 배경 */}
+      <div className="absolute inset-0 opacity-5 pointer-events-none">
+        <svg width="100%" height="100%">
+          <defs>
+            <pattern id="hex-loading" width="50" height="43.4" patternUnits="userSpaceOnUse">
+              <polygon points="25,0 50,12.5 50,37.5 25,50 0,37.5 0,12.5" fill="none" stroke="#000" strokeWidth="1"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hex-loading)"/>
+        </svg>
+      </div>
+
+      {/* 메인 컨텐츠 */}
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-sm">
+
+          {/* 메인 카드 - 황금빛과 함께 움직임 */}
+          <div 
+            className="bg-white rounded-3xl border-2 border-gray-900 overflow-hidden relative"
+            style={{ animation: 'cardPulse 3s ease-in-out infinite' }}
+          >
+            
+            {/* ✨ 황금카드 빛나는 효과 ✨ */}
+            <div 
+              className="absolute inset-0 pointer-events-none z-30 overflow-hidden"
+              style={{ borderRadius: '1.5rem' }}
+            >
+              <div 
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '200%',
+                  height: '200%',
+                  background: 'linear-gradient(45deg, transparent 30%, rgba(251, 191, 36, 0.15) 40%, rgba(254, 243, 199, 0.35) 50%, rgba(251, 191, 36, 0.15) 60%, transparent 70%)',
+                  animation: 'goldCardShine 3s ease-in-out infinite'
+                }}
+              ></div>
+            </div>
+            
+            {/* 퀘스트 헤더 */}
+            <div className="bg-gray-900 px-4 py-3 relative overflow-hidden">
+              <div 
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                style={{ animation: 'shine 3s infinite' }}
+              ></div>
+              <div className="relative flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-amber-400 text-xs font-bold" style={{ animation: 'blink 2s infinite' }}>▶ QUEST</span>
+                  <span className="text-white font-black text-sm">{config.questName}</span>
+                </div>
+                <div className="bg-amber-400 text-gray-900 text-xs font-black px-2 py-1 rounded-lg">
+                  {config.badge}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-5 relative z-10">
+              
+              {/* 오운완 로고 */}
+              <div className="flex justify-center mb-5">
+                <div 
+                  className="relative"
+                  style={{ animation: 'wiggle 2s ease-in-out infinite' }}
+                >
+                  <div 
+                    className="absolute -inset-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 rounded-2xl"
+                    style={{ animation: 'goldGlow 2s ease-in-out infinite' }}
+                  ></div>
+                  <div className="relative bg-white rounded-2xl px-4 py-2 border-2 border-gray-900">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{config.icon}</span>
+                      <span className="text-gray-900 font-black">오운완</span>
+                      <span style={{ animation: 'sparkle 1.5s infinite' }}>✨</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 생년월일 표시 */}
+              {birthInfo && (
+                <div className="text-center mb-3">
+                  <span className="text-gray-500 text-sm">
+                    {birthInfo.year}년 {birthInfo.month}월 {birthInfo.day}일
+                  </span>
+                </div>
+              )}
+
+              {/* 스테이지 진행 표시 */}
+              <div className="flex justify-center gap-1 mb-5">
+                {config.stages.map((_, idx) => (
+                  <div key={idx} className="flex items-center">
+                    <div 
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black transition-all ${
+                        idx < currentPhase 
+                          ? 'bg-amber-400 text-gray-900' 
+                          : idx === currentPhase 
+                            ? 'bg-gray-900 text-white' 
+                            : 'bg-gray-200 text-gray-400'
+                      }`}
+                      style={idx === currentPhase ? { animation: 'shake 0.5s ease-in-out infinite' } : {}}
+                    >
+                      {idx < currentPhase ? '✓' : idx + 1}
+                    </div>
+                    {idx < config.stages.length - 1 && (
+                      <div className={`w-3 h-0.5 ${idx < currentPhase ? 'bg-amber-400' : 'bg-gray-300'}`}></div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* 현재 스테이지 정보 */}
+              <div className="bg-gray-50 rounded-2xl p-4 mb-4 border-2 border-gray-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span 
+                      className="text-2xl"
+                      style={{ animation: 'pulse 1s ease-in-out infinite' }}
+                    >
+                      {emojis[currentEmoji]}
+                    </span>
+                    <div>
+                      <div className="text-gray-900 font-black text-sm">{stage.boss}</div>
+                      <div className="text-gray-500 text-xs">{stage.action}{dots}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-gray-400">STAGE</div>
+                    <div className="text-amber-600 font-black">{currentPhase + 1}/{totalPhases}</div>
+                  </div>
+                </div>
+
+                {/* 🔮 남은 운세 바 */}
+                <div className="mb-2">
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-gray-500 font-bold">🔮 남은 운세</span>
+                    <span className="text-amber-600 font-black">{remainingFortunes}개 남음</span>
+                  </div>
+                  <div className="h-3 bg-gray-300 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-all duration-500"
+                      style={{ width: `${(remainingFortunes / totalFortunes) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* 현재 분석 중인 운세 항목 */}
+                <div className="text-center mt-2 py-2 bg-white rounded-lg border border-gray-200">
+                  <span className="text-gray-600 text-xs">분석 중: </span>
+                  <span 
+                    className="text-amber-600 font-bold text-sm"
+                    style={{ animation: 'pulse 0.8s ease-in-out infinite' }}
+                  >
+                    {config.fortunes[currentFortune]}
+                  </span>
+                </div>
+              </div>
+
+              {/* 프로그레스 바 */}
+              <div className="bg-gray-100 rounded-2xl p-4 border-2 border-gray-200 mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-gray-600 text-xs font-bold">⏳ 해금 진행률</span>
+                  <span className="text-amber-600 text-xs font-black">{displayProgress}%</span>
+                </div>
+                <div className="h-4 bg-gray-300 rounded-full overflow-hidden relative">
+                  <div 
+                    className="h-full bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full transition-all duration-300 relative overflow-hidden"
+                    style={{ width: `${displayProgress}%` }}
+                  >
+                    <div 
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                      style={{ animation: 'shine 1.5s infinite' }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 획득 예정 보상 */}
+              <div className="bg-amber-50 rounded-xl p-3 border-2 border-amber-200">
+                <div className="text-amber-700 text-xs font-bold mb-2 text-center">
+                  🎁 획득 예정 보상
+                </div>
+                <div className="flex justify-center gap-3">
+                  {config.reward.map((emoji, idx) => (
+                    <div 
+                      key={idx}
+                      className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border-2 border-amber-300 text-xl shadow-sm"
+                      style={{ animation: `float 2s ease-in-out infinite`, animationDelay: `${idx * 0.3}s` }}
+                    >
+                      {emoji}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* 하단 팁 */}
+          <div className="bg-white/80 rounded-2xl p-3 mt-3 border border-gray-200">
+            <p className="text-gray-600 text-xs text-center transition-all duration-500">
+              {tips[showTip]}
+            </p>
+          </div>
+
+          {/* NOW LOADING */}
+          <div className="text-center mt-3">
+            <span 
+              className="text-gray-400 text-xs font-bold tracking-widest"
+              style={{ animation: 'blink 1.5s infinite' }}
+            >
+              NOW LOADING{dots}
+            </span>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 }
