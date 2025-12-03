@@ -154,7 +154,7 @@ export default function LoadingScreen({ type = 'daily', birthInfo = null }) {
   }, [stage.progress]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 relative overflow-hidden flex items-center justify-center pb-24">
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 relative overflow-hidden flex items-center justify-center">
       {/* 애니메이션 */}
       <style>{`
         @keyframes wiggle {
@@ -219,7 +219,7 @@ export default function LoadingScreen({ type = 'daily', birthInfo = null }) {
       </div>
 
       {/* 메인 컨텐츠 */}
-      <div className="relative z-10 p-4">
+      <div className="relative z-10 p-4 mb-20">
         <div className="w-full max-w-sm">
 
           {/* 메인 카드 - 황금빛과 함께 움직임 */}
