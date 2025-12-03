@@ -86,6 +86,11 @@ export default function LoadingScreen({ type = 'daily', birthInfo = null }) {
   const totalFortunes = config.fortunes.length;
   const remainingFortunes = Math.max(0, totalFortunes - Math.floor((displayProgress / 100) * totalFortunes));
 
+    // ⭐ 이거 추가! 페이지 로드 시 스크롤 맨 위로
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
   // 점 애니메이션 (...)
   useEffect(() => {
     const interval = setInterval(() => {
